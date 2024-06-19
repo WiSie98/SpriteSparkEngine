@@ -1,0 +1,51 @@
+project "SpriteSparkGame"
+   kind "ConsoleApp"
+   language "C++"
+   cppdialect "C++20"
+   targetdir "Binaries/%{cfg.buildcfg}"
+   staticruntime "off"
+
+   files {
+    "Source/**.h", 
+    "Source/**.cpp", 
+    "Source/**.hpp", 
+    "Source/**.cxx",
+    "Source/**.c"
+}
+
+   includedirs
+   {
+      "Source",
+
+	  -- Include Core
+	  "../SpriteSparkEngine/Source"
+   }
+
+   links
+   {
+      "SpriteSparkEngine"
+   }
+
+   targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
+   objdir ("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")
+
+   filter "system:windows"
+       systemversion "latest"
+       defines { "WINDOWS" }
+
+   filter "configurations:Debug"
+       defines { "DEBUG" }
+       runtime "Debug"
+       symbols "On"
+
+   filter "configurations:Release"
+       defines { "RELEASE" }
+       runtime "Release"
+       optimize "On"
+       symbols "On"
+
+   filter "configurations:Dist"
+       defines { "DIST" }
+       runtime "Release"
+       optimize "On"
+       symbols "Off"
