@@ -13,18 +13,25 @@ project "SpriteSparkGame"
     "Source/**.c"
     }
 
-   includedirs
-   {
+   includedirs {
       "Source",
 
 	  -- Include SpriteSparkEngine
 	  "../SpriteSparkEngine/Source",
-      "../SpriteSparkEngine/Vendor"
+      "../SpriteSparkEngine/Vendor/Vulkan/Include",
+      "../SpriteSparkEngine/Vendor/GLFW/include",
+      "../SpriteSparkEngine/Vendor/GLM"
    }
 
-   links
-   {
-      "SpriteSparkEngine"
+   libdirs {
+       "../SpriteSparkEngine/Vendor/Vulkan/Lib",
+       "../SpriteSparkEngine/Vendor/GLFW/lib-vc2022"
+    }
+
+   links {
+      "SpriteSparkEngine",
+      "glfw3.lib",
+      "vulkan-1.lib"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
