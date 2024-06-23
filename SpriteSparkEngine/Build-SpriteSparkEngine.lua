@@ -13,18 +13,16 @@ project "SpriteSparkEngine"
     "Source/**.c"
     }
 
-    include {
-        -- Includes Libraries "Vendor/.../..."
-    }
-
-   includedirs
-   {
+   includedirs {
       "Source",
       "Vendor"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
    objdir ("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")
+
+   pchheader "Sparkpch.h"
+   pchsource "Source/Sparkpch.cpp"
 
    filter "system:windows"
        systemversion "latest"

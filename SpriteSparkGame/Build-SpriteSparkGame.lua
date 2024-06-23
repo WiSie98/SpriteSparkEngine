@@ -13,16 +13,12 @@ project "SpriteSparkGame"
     "Source/**.c"
     }
 
-    include {
-        -- Includes Libraries "Vendor/.../..."
-    }
-
    includedirs
    {
       "Source",
 
 	  -- Include SpriteSparkEngine
-	  "../SpriteSparkEngine/Source"
+	  "../SpriteSparkEngine/Source",
       "../SpriteSparkEngine/Vendor"
    }
 

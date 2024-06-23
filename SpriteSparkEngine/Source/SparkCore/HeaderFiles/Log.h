@@ -1,14 +1,6 @@
 #pragma once
 
-#include <chrono>
-#include <sstream>
-#include <iostream>
-#include <string_view>
-
-// Cross-platform includes for setting console color
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include "Sparkpch.h"
 
 namespace SpriteSpark {
 
