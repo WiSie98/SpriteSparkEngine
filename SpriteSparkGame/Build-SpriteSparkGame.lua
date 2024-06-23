@@ -11,14 +11,19 @@ project "SpriteSparkGame"
     "Source/**.hpp", 
     "Source/**.cxx",
     "Source/**.c"
-}
+    }
+
+    include {
+        -- Includes Libraries "Vendor/.../..."
+    }
 
    includedirs
    {
       "Source",
 
-	  -- Include Core
+	  -- Include SpriteSparkEngine
 	  "../SpriteSparkEngine/Source"
+      "../SpriteSparkEngine/Vendor"
    }
 
    links

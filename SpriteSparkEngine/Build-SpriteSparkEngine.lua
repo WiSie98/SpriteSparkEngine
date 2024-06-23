@@ -11,11 +11,16 @@ project "SpriteSparkEngine"
     "Source/**.hpp", 
     "Source/**.cxx",
     "Source/**.c"
-}
+    }
+
+    include {
+        -- Includes Libraries "Vendor/.../..."
+    }
 
    includedirs
    {
-      "Source"
+      "Source",
+      "Vendor"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

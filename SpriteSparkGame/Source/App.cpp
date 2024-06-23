@@ -1,7 +1,13 @@
-#include "SpriteSparkCore/Headerfiles/SparkCore.h"
+#include <SpriteSpark.h>
 
-int main() {
+class TestApp : public SpriteSpark::Application {
 
-	SparkCore::PrintHelloWorld();
+public:
+    TestApp() { }
 
+    ~TestApp() { }
+};
+
+SpriteSpark::Application* SpriteSpark::CreateApplication() {
+    return new TestApp();
 }

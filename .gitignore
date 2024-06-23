@@ -6,6 +6,7 @@ Binaries/
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
+*.editorconfig
 *.sln
 *.log
 Makefile
