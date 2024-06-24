@@ -1,72 +1,54 @@
 #include "Sparkpch.h"
 
 #include <vulkan/vulkan.h>
-
 #include <GLFW/glfw3.h>
-
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
 
 #include "SparkCore/HeaderFiles/Application.h"
 
-#include "SparkEvents/Event.h"
-#include "SparkEvents/ApplicationEvent.h"
-#include "SparkEvents/KeyEvent.h"
-#include "SparkEvents/MouseEvent.h"
-
 namespace SpriteSpark {
 
-	Application::Application() { }
+	Application::Application() {
+
+        m_Window = std::unique_ptr<Window>(Window::Create());
+        m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+
+        // Event-Listener registrieren mit Testfunktionen
+        auto& dispatcher = GlobalEventDispatcher::Get();
+        dispatcher.registerListener<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+        dispatcher.registerListener<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
+
+        dispatcher.registerListener<KeyPressedEvent>([](const KeyPressedEvent& e) {
+            SP_CORE_INFO("Key pressed: ", e.GetKeyCode());
+        });
+
+        dispatcher.registerListener<MouseMovedEvent>([](const MouseMovedEvent& e) {
+            SP_CORE_INFO("Mouse moved to: ", e.GetX(), ", ", e.GetY());
+        });
+	}
 
 	Application::~Application() { }
 
+    void Application::OnEvent(Event& e) {
+
+    }
+
+    bool Application::OnWindowResize(WindowResizeEvent& e) {
+        SP_CORE_INFO("Window resized to ", e.GetWidth(), "x", e.GetHeight());
+        return false;
+    }
+
+    bool Application::OnWindowClose(WindowCloseEvent& e) {
+        m_Running = false;
+        SP_CORE_INFO("Window Closed");
+        return true;
+    }
+
 	void Application::Run() {
 
-		glfwInit();
-
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		GLFWwindow* window = glfwCreateWindow(800, 600, "SpriteSpark Game", nullptr, nullptr);
-
-		uint32_t extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-		SP_CORE_DEBUG(extensionCount, " extensions supported");
-
-		glm::mat4 matrix;
-		glm::vec4 vec;
-		auto test = matrix * vec;
-
-		SpriteSpark::EventDispatcher dispatcher;
-		SpriteSpark::WindowResizeEvent window_event(1280, 720);
-
-		// Registrierung eines Listeners für WindowResizeEvent
-		dispatcher.registerListener<WindowResizeEvent>([](const WindowResizeEvent& event) {
-			SP_CORE_TRACE(event, " in Application.cpp");
-		});
-
-		dispatcher.registerListener<KeyPressedEvent>([](const KeyPressedEvent& event) {
-			SP_CORE_TRACE(event, " in Application.cpp");
-		});
-
-		dispatcher.registerListener<MouseButtonPressedEvent>([](const MouseButtonPressedEvent& event) {
-			SP_CORE_TRACE(event, " in Application.cpp");
-		});
-
-		while (!glfwWindowShouldClose(window)) {
-
-			glfwPollEvents();
-
-			// Puffern von Events
-			dispatcher.bufferEvent(std::make_shared<WindowResizeEvent>(1280, 720));
-			dispatcher.bufferEvent(std::make_shared<KeyPressedEvent>(Key::B, false));
-			dispatcher.bufferEvent(std::make_shared<MouseButtonPressedEvent>(Mouse::Button0));
-
-			// Späteres Verarbeiten der gepufferten Events
-			dispatcher.updateEvents();
+		while (m_Running) {
+			m_Window->OnUpdate();
+            SpriteSpark::GlobalEventDispatcher::Get().updateEvents();
 		}
-
-		glfwDestroyWindow(window);
-		glfwTerminate();
 
 	}
 

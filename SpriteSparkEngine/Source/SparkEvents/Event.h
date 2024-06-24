@@ -55,7 +55,6 @@ namespace SpriteSpark {
 
         using EventCallback = std::function<void(const std::shared_ptr<Event>&)>;
 
-        // Konstruktor
         EventDispatcher() = default;
 
         // Registrierung eines Listeners
@@ -72,15 +71,47 @@ namespace SpriteSpark {
 
         // Puffern von Events
         void bufferEvent(std::shared_ptr<Event> event) {
-            eventBuffer.emplace_back(std::move(event));
+            SP_CORE_INFO("Buffering event: ", event->ToString());
+            if (!event) {
+                SP_CORE_ERROR("Event is null!");
+                return;
+            }
+
+            //eventBuffer.emplace_back(std::move(event));
+
+            // Überprüfen, ob bereits ein Event derselben Klasse im Buffer vorhanden ist
+            auto it = std::find_if(eventBuffer.begin(), eventBuffer.end(), [&event](const std::shared_ptr<Event>& e) {
+                    return typeid(*e) == typeid(*event);
+            });
+
+            // Wenn ein Event derselben Klasse gefunden wird, wird es ersetzt
+            if (it != eventBuffer.end()) {
+                SP_CORE_INFO("Replacing existing event: ", (*it)->ToString());
+                *it = std::move(event);
+            } else {
+                eventBuffer.emplace_back(std::move(event));
+            }
+
+            SP_CORE_INFO("Event buffered successfully. Buffer size: ", eventBuffer.size());
         }
 
         // Verarbeiten der gepufferten Events
         void updateEvents() {
             if (eventBuffer.empty()) return;
 
+            SP_CORE_INFO("Updating events, buffer size: ", eventBuffer.size());
+
             for (const auto& event : eventBuffer) {
-                dispatch(event);
+                try {
+                    SP_CORE_INFO("Dispatching event: ", event->ToString());
+                    dispatch(event);
+                }
+                catch (const std::exception& e) {
+                    SP_CORE_ERROR("Exception caught while dispatching event: ", e.what());
+                }
+                catch (...) {
+                    SP_CORE_ERROR("Unknown exception caught while dispatching event.");
+                }
             }
             eventBuffer.clear();
         }
@@ -90,7 +121,6 @@ namespace SpriteSpark {
         std::unordered_map<std::type_index, std::vector<EventCallback>> listeners;
         std::vector<std::shared_ptr<Event>> eventBuffer;
 
-        // Interne Dispatch-Methode
         void dispatch(const std::shared_ptr<Event>& event) {
             const std::type_index typeIndex(typeid(*event));
             auto it = listeners.find(typeIndex);
@@ -98,6 +128,8 @@ namespace SpriteSpark {
                 for (const auto& listener : it->second) {
                     listener(event);
                 }
+            } else {
+                SP_CORE_WARN("No listeners found for event type: ", event->GetName());
             }
         }
     };

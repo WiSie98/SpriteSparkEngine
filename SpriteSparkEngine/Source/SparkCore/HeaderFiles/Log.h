@@ -141,12 +141,12 @@ namespace SpriteSpark {
 #define SP_CORE_ERROR(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Error, "ENGINE: ",__VA_ARGS__)
 #define SP_CORE_CRITICAL(...) ::SpriteSpark::Log::LogMessage( LogLevel::Critical, "ENGINE: ",__VA_ARGS__)
 
-#define SP_APP_TRACE(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Trace, "APP: ",__VA_ARGS__)
-#define SP_APP_DEBUG(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Debug, "APP: ",__VA_ARGS__)
-#define SP_APP_INFO(...)     ::SpriteSpark::Log::LogMessage( LogLevel::Info, "APP: ",__VA_ARGS__)
-#define SP_APP_WARN(...)     ::SpriteSpark::Log::LogMessage( LogLevel::Warn, "APP: ",__VA_ARGS__)
-#define SP_APP_ERROR(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Error, "APP: ",__VA_ARGS__)
-#define SP_APP_CRITICAL(...) ::SpriteSpark::Log::LogMessage( LogLevel::Critical, "APP: ",__VA_ARGS__)
+#define SP_TRACE(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Trace, "APP: ",__VA_ARGS__)
+#define SP_DEBUG(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Debug, "APP: ",__VA_ARGS__)
+#define SP_INFO(...)     ::SpriteSpark::Log::LogMessage( LogLevel::Info, "APP: ",__VA_ARGS__)
+#define SP_WARN(...)     ::SpriteSpark::Log::LogMessage( LogLevel::Warn, "APP: ",__VA_ARGS__)
+#define SP_ERROR(...)    ::SpriteSpark::Log::LogMessage( LogLevel::Error, "APP: ",__VA_ARGS__)
+#define SP_CRITICAL(...) ::SpriteSpark::Log::LogMessage( LogLevel::Critical, "APP: ",__VA_ARGS__)
 #else
 #define SP_CORE_TRACE
 #define SP_CORE_DEBUG
@@ -155,10 +155,10 @@ namespace SpriteSpark {
 #define SP_CORE_ERROR
 #define SP_CORE_CRITICAL
 
-#define SP_APP_TRACE
-#define SP_APP_DEBUG
-#define SP_APP_INFO
-#define SP_APP_WARN
-#define SP_APP_ERROR
-#define SP_APP_CRITICAL
+#define SP_TRACE
+#define SP_DEBUG
+#define SP_INFO
+#define SP_WARN
+#define SP_ERROR
+#define SP_CRITICAL
 #endif
