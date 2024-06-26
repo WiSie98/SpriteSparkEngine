@@ -131,19 +131,7 @@ namespace SpriteSpark {
 		}
 
 		auto& dispatcher = GlobalEventDispatcher::Get();
-
-		// Debuggen der Event-Erstellung
-		try {
-			auto event = std::make_shared<MouseMovedEvent>((float)xpos, (float)ypos);
-			SP_CORE_INFO("MouseMovedEvent created: ", event->GetX(), ", ", event->GetY());
-			dispatcher.bufferEvent(event);
-		}
-		catch (const std::exception& e) {
-			SP_CORE_ERROR("Exception caught while creating MouseMovedEvent: ", e.what());
-		}
-		catch (...) {
-			SP_CORE_ERROR("Unknown exception caught while creating MouseMovedEvent.");
-		}
+		dispatcher.bufferEvent(std::make_shared<MouseMovedEvent>((float)xpos, (float)ypos));
 	}
 
 }

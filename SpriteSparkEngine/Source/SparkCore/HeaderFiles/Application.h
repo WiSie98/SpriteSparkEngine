@@ -2,6 +2,7 @@
 
 #include "SparkCore/HeaderFiles/Core.h"
 #include "SparkCore/HeaderFiles/Window.h"
+#include "SparkCore/HeaderFiles/LayerStack.h"
 
 #include "SparkEvents/GlobalEventDispatcher.h"
 
@@ -17,15 +18,19 @@ namespace SpriteSpark {
 		virtual ~Application();
 
 		void Run();
-		void OnEvent(Event& e);
+
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
 
 	private:
 
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
+		LayerStack m_LayerStack;
 
-		bool OnWindowResize(WindowResizeEvent& e);
-		bool OnWindowClose(WindowCloseEvent& e);
+		void OnEvent(const Event& e);
+		bool OnWindowResize(const WindowResizeEvent& e);
+		bool OnWindowClose(const WindowCloseEvent& e);
 
 	};
 

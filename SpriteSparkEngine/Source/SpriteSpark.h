@@ -4,8 +4,9 @@
 
 // -----------------SparkCore---------------------
 #include "SparkCore/HeaderFiles/Core.h"
-#include "SparkCore/HeaderFiles/Application.h"
 #include "SparkCore/HeaderFiles/Log.h"
+#include "SparkCore/HeaderFiles/Application.h"
+#include "SparkCore/HeaderFiles/Layer.h"
 // -----------------------------------------------
 
 // -----------------SparkEvents-------------------
@@ -13,6 +14,7 @@
 #include "SparkEvents/ApplicationEvent.h"
 #include "SparkEvents/KeyEvent.h"
 #include "SparkEvents/MouseEvent.h"
+#include "SparkEvents/GlobalEventDispatcher.h"
 // -----------------------------------------------
 
 // ----------------Entry Point--------------------

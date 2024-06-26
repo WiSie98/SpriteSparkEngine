@@ -35,8 +35,8 @@ namespace SpriteSpark {
 		struct WindowData {
 
 			std::string Titel;
-			unsigned int Width, Height;
-			bool VSync;
+			unsigned int Width = 1280, Height = 720;
+			bool VSync = true;
 
 			EventCallbackFn EventCallback;
 

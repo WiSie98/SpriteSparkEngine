@@ -77,20 +77,7 @@ namespace SpriteSpark {
                 return;
             }
 
-            //eventBuffer.emplace_back(std::move(event));
-
-            // Überprüfen, ob bereits ein Event derselben Klasse im Buffer vorhanden ist
-            auto it = std::find_if(eventBuffer.begin(), eventBuffer.end(), [&event](const std::shared_ptr<Event>& e) {
-                    return typeid(*e) == typeid(*event);
-            });
-
-            // Wenn ein Event derselben Klasse gefunden wird, wird es ersetzt
-            if (it != eventBuffer.end()) {
-                SP_CORE_INFO("Replacing existing event: ", (*it)->ToString());
-                *it = std::move(event);
-            } else {
-                eventBuffer.emplace_back(std::move(event));
-            }
+            eventBuffer.emplace_back(std::move(event));
 
             SP_CORE_INFO("Event buffered successfully. Buffer size: ", eventBuffer.size());
         }
