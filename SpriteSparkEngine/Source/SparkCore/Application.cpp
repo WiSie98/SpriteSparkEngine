@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 
 #include "SparkCore/HeaderFiles/Application.h"
+#include "SparkCore/HeaderFiles/GlobalThreadPool.h"
+#include "SparkCore/HeaderFiles/Input.h"
 
 namespace SpriteSpark {
 
@@ -12,25 +14,12 @@ namespace SpriteSpark {
         m_Window = std::unique_ptr<Window>(Window::Create());
 
         // Event-Listener registrieren mit Testfunktionen
-        auto& dispatcher = GlobalEventDispatcher::Get();
-
-        // Test
-        dispatcher.registerListener<MouseButtonPressedEvent>([this](const MouseButtonPressedEvent& e) {
-            this->OnEvent(e);
-            this->OnEvent(e);
-            this->OnEvent(e);
-        });
+        EventDispatcher& dispatcher = GlobalEventDispatcher::Get();
+        Input::Initialize(dispatcher);
 
         dispatcher.registerListener<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
         dispatcher.registerListener<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
 
-        dispatcher.registerListener<KeyPressedEvent>([](const KeyPressedEvent& e) {
-            SP_CORE_INFO("Key pressed: ", e.GetKeyCode());
-        });
-
-        dispatcher.registerListener<MouseMovedEvent>([](const MouseMovedEvent& e) {
-            SP_CORE_INFO("Mouse moved to: ", e.GetX(), ", ", e.GetY());
-        });
 	}
 
 	Application::~Application() { }
@@ -67,7 +56,8 @@ namespace SpriteSpark {
             }
 
 			m_Window->OnUpdate();
-            SpriteSpark::GlobalEventDispatcher::Get().updateEvents();
+            Input::Clear();
+            GlobalEventDispatcher::Get().updateEvents();
 		}
 
 	}

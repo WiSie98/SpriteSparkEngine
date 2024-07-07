@@ -3,7 +3,6 @@
 #include "SparkCore/HeaderFiles/Core.h"
 #include "SparkCore/HeaderFiles/Window.h"
 #include "SparkCore/HeaderFiles/LayerStack.h"
-
 #include "SparkEvents/GlobalEventDispatcher.h"
 
 namespace SpriteSpark {

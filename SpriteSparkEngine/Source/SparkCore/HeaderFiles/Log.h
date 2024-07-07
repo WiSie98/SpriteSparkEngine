@@ -2,6 +2,8 @@
 
 #include "Sparkpch.h"
 
+#include "SparkCore/HeaderFiles/GlobalThreadPool.h"
+
 namespace SpriteSpark {
 
     enum LogLevel {
@@ -19,86 +21,78 @@ namespace SpriteSpark {
 
         static void Init();
 
-        inline static void SetConsoleColor(LogLevel lvl) {
+        inline static void SetConsoleColor(LogLevel lvl, std::ostringstream& oss) {
 #ifdef _WIN32
             static HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
             switch (lvl) {
             case LogLevel::Trace:
-                SetConsoleTextAttribute(hConsole, 7);  // White
+                oss << "\033[37m"; // White
                 break;
             case LogLevel::Debug:
-                SetConsoleTextAttribute(hConsole, 11); // Cyan
+                oss << "\033[36m"; // Cyan
                 break;
             case LogLevel::Info:
-                SetConsoleTextAttribute(hConsole, 10); // Green
+                oss << "\033[32m"; // Green
                 break;
             case LogLevel::Warn:
-                SetConsoleTextAttribute(hConsole, 14); // Yellow
+                oss << "\033[33m"; // Yellow
                 break;
             case LogLevel::Error:
-                SetConsoleTextAttribute(hConsole, 12); // Red
+                oss << "\033[31m"; // Red
                 break;
             case LogLevel::Critical:
-                SetConsoleTextAttribute(hConsole, 13); // Magenta
+                oss << "\033[35m"; // Magenta
                 break;
             default:
-                SetConsoleTextAttribute(hConsole, 7);  // Default to white
+                oss << "\033[37m"; // Default to white
                 break;
             }
 #else
-            const char* color_reset = "\033[0m";
-            const char* color_trace = "\033[37m";    // White
-            const char* color_debug = "\033[36m";    // Cyan
-            const char* color_info = "\033[32m";     // Green
-            const char* color_warn = "\033[33m";     // Yellow
-            const char* color_error = "\033[31m";    // Red
-            const char* color_critical = "\033[35m"; // Magenta
-
             switch (lvl) {
             case LogLevel::Trace:
-                std::cout << color_trace;
+                oss << "\033[37m";    // White
                 break;
             case LogLevel::Debug:
-                std::cout << color_debug;
+                oss << "\033[36m";    // Cyan
                 break;
             case LogLevel::Info:
-                std::cout << color_info;
+                oss << "\033[32m";    // Green
                 break;
             case LogLevel::Warn:
-                std::cout << color_warn;
+                oss << "\033[33m";    // Yellow
                 break;
             case LogLevel::Error:
-                std::cout << color_error;
+                oss << "\033[31m";    // Red
                 break;
             case LogLevel::Critical:
-                std::cout << color_critical;
+                oss << "\033[35m";    // Magenta
                 break;
             default:
-                std::cout << color_reset;
+                oss << "\033[0m";     // Reset
                 break;
             }
 #endif
         }
 
-        inline static void ResetConsoleColor() {
+        inline static void ResetConsoleColor(std::ostringstream& oss) {
 #ifdef _WIN32
-            static HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-            SetConsoleTextAttribute(hConsole, 7);
+            oss << "\033[0m";
 #else
-            const char* color_reset = "\033[0m";
-            std::cout << color_reset;
+            oss << "\033[0m";
 #endif
         }
 
         template<typename... Args>
         inline static void LogMessage(LogLevel lvl, const std::string_view& str, Args&&... args) {
-            std::ostringstream oss;
-            oss << "[" << GetCurrentTime() << "] ";
-            AppendToStream(oss, str, std::forward<Args>(args)...);
-
-            SetConsoleColor(lvl);
-            std::cout << oss.str() << std::endl;
-            ResetConsoleColor();
+            GlobalThreadPool::Get().enqueue([lvl, str, args...]() {
+                std::ostringstream oss;
+                SetConsoleColor(lvl, oss);
+                oss << "[" << GetCurrentTime() << "] ";
+                AppendToStream(oss, str, args...);
+                ResetConsoleColor(oss);
+                oss << std::endl;
+                std::cout << oss.str();
+                });
         }
 
     private:
@@ -109,7 +103,7 @@ namespace SpriteSpark {
 #ifdef _WIN32
             localtime_s(&tm_now, &now);
 #else
-            localtime_r(&now, &tm_now); // For Unix Systemes localtime_r gets used
+            localtime_r(&now, &tm_now);
 #endif
 
             std::ostringstream oss;
@@ -125,9 +119,8 @@ namespace SpriteSpark {
 
         template<typename... Args>
         void static AppendToStream(std::ostringstream& oss, Args&&... args) {
-            (oss << ... << std::forward<Args>(args));  // Fold expression to handle variadic arguments
+            (oss << ... << std::forward<Args>(args));
         }
-    
     };
 
 }

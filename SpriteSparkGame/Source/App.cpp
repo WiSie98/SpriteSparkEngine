@@ -7,21 +7,18 @@ class TestLayer : public SpriteSpark::Layer {
 public:
 
     TestLayer() : Layer("Test") {
-    
-        auto& dispatcher = GlobalEventDispatcher::Get();
-
-        dispatcher.registerListener<KeyPressedEvent>([](const KeyPressedEvent& e) {
-            SP_INFO("Key pressed: ", e.GetKeyCode());
-        });
-
-        dispatcher.registerListener<MouseMovedEvent>([](const MouseMovedEvent& e) {
-            SP_INFO("Mouse moved to: ", e.GetX(), ", ", e.GetY());
-        });
 
     }
 
     void OnUpdate() override {
-        //SP_INFO("TestLayer::Update");
+
+        if (Input::IsKeyPressed(Key::H)) {
+            SP_INFO("Key Pressed: H ");
+        }
+
+        if (Input::IsMouseButtonPressed(Mouse::Button0)) {
+            SP_INFO("MouseButton Pressed: LeftMB ");
+        }
     }
 
 };
