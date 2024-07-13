@@ -10,11 +10,15 @@ project "SpriteSparkGame"
     "Source/**.cpp", 
     "Source/**.hpp", 
     "Source/**.cxx",
-    "Source/**.c"
+    "Source/**.c",
+    "Shaders/**.glsl",
+    "Shaders/**.vert",
+    "Shaders/**.frag"
     }
 
    includedirs {
       "Source",
+      "Shaders",
 
 	  -- Include SpriteSparkEngine
 	  "../SpriteSparkEngine/Source",

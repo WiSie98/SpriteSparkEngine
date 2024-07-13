@@ -30,10 +30,16 @@ namespace SpriteSpark {
 
 	public:
 
-		WindowCloseEvent() = default;
+		WindowCloseEvent(bool windowClose) : m_WindowClose(windowClose) {}
+
+		bool GetShouldWindowClose() const { return m_WindowClose; }
 
 		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	private:
+
+		bool m_WindowClose = false;
 
 	};
 }

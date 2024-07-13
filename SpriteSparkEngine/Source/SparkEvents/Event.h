@@ -71,7 +71,6 @@ namespace SpriteSpark {
 
         // Puffern von Events
         void bufferEvent(std::shared_ptr<Event> event) {
-            SP_CORE_INFO("Buffering event: ", event->ToString());
             if (!event) {
                 SP_CORE_ERROR("Event is null!");
                 return;
@@ -79,18 +78,14 @@ namespace SpriteSpark {
 
             eventBuffer.emplace_back(std::move(event));
 
-            SP_CORE_INFO("Event buffered successfully. Buffer size: ", eventBuffer.size());
         }
 
         // Verarbeiten der gepufferten Events
         void updateEvents() {
             if (eventBuffer.empty()) return;
 
-            SP_CORE_INFO("Updating events, buffer size: ", eventBuffer.size());
-
             for (const auto& event : eventBuffer) {
                 try {
-                    SP_CORE_INFO("Dispatching event: ", event->ToString());
                     dispatch(event);
                 }
                 catch (const std::exception& e) {

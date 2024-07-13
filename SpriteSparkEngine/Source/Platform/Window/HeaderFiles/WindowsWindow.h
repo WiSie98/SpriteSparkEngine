@@ -13,17 +13,24 @@ namespace SpriteSpark {
 
 	public:
 
+		WindowsWindow();
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
 		void OnUpdate() override;
+		bool ShouldClose() override;
+
+		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface) override;
 
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
+		VkExtent2D GetExtend() { return { static_cast<uint32_t>(m_Data.Width), static_cast<uint32_t>(m_Data.Height) }; }
 
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
+		bool WasWindowResized() { return m_Data.frameBufferResized; };
+		void resetWindowResizedFlag() { m_Data.frameBufferResized = false; };
 
 	private:
 
@@ -37,6 +44,7 @@ namespace SpriteSpark {
 			std::string Titel;
 			unsigned int Width = 1280, Height = 720;
 			bool VSync = true;
+			bool frameBufferResized = false;
 
 			EventCallbackFn EventCallback;
 

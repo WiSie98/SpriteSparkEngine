@@ -10,7 +10,10 @@ project "SpriteSparkEngine"
     "Source/**.cpp", 
     "Source/**.hpp", 
     "Source/**.cxx",
-    "Source/**.c"
+    "Source/**.c",
+    "Source/**.glsl",
+    "Source/**.vert",
+    "Source/**.frag"
     }
 
    includedirs {
@@ -56,6 +59,7 @@ project "SpriteSparkEngine"
        runtime "Release"
        optimize "On"
        symbols "Off"
+
 
 
 

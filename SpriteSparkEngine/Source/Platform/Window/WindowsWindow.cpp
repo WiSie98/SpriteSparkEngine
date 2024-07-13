@@ -1,6 +1,6 @@
 #include "Sparkpch.h"
 
-#include "Platform/HeaderFiles/WindowsWindow.h"
+#include "Platform/Window/HeaderFiles/WindowsWindow.h"
 
 namespace SpriteSpark {
 	
@@ -8,6 +8,11 @@ namespace SpriteSpark {
 
 	Window* Window::Create(const WindowProps& props) {
 		return new WindowsWindow(props);
+	}
+
+	WindowsWindow::WindowsWindow() {
+		WindowProps defaultProps;
+		Init(defaultProps);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props) {
@@ -35,7 +40,14 @@ namespace SpriteSpark {
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Titel.c_str(), nullptr, nullptr);
+		glfwSetWindowUserPointer(m_Window, this);
+		glfwSetFramebufferSizeCallback(m_Window, GLFWWindowSizeCallback);
+
+		/*
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -47,16 +59,27 @@ namespace SpriteSpark {
 
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 		SP_CORE_INFO(extensionCount, " extensions supported.");
-
+		*/
 	}
 
 	void WindowsWindow::Shutdown() {
 		glfwDestroyWindow(m_Window);
+		glfwTerminate();
 	}
 
 	void WindowsWindow::OnUpdate() {
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		//glfwSwapBuffers(m_Window);
+	}
+
+	void WindowsWindow::CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
+		if (glfwCreateWindowSurface(instance, m_Window, nullptr, surface) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create window surface!");
+		}
+	}
+
+	bool WindowsWindow::ShouldClose() {
+		return glfwWindowShouldClose(m_Window);
 	}
 
 	void WindowsWindow::SetVSync(bool enabled) {
@@ -79,6 +102,7 @@ namespace SpriteSpark {
 
 	void WindowsWindow::GLFWWindowSizeCallback(GLFWwindow* window, int width, int height) {
 		WindowsWindow* win = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
+		win->m_Data.frameBufferResized = true;
 		win->m_Data.Width = width;
 		win->m_Data.Height = height;
 
@@ -123,7 +147,7 @@ namespace SpriteSpark {
 	}
 
 	void WindowsWindow::GLFWCursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-		SP_CORE_INFO("GLFWCursorPosCallback triggered with posX: ", xpos, ", posY: ", ypos);
+		//SP_CORE_INFO("GLFWCursorPosCallback triggered with posX: ", xpos, ", posY: ", ypos);
 		WindowsWindow* win = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
 		if (win == nullptr) {
 			SP_CORE_ERROR("Window pointer is null!");
