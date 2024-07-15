@@ -37,6 +37,10 @@ namespace SpriteSpark {
         VkResult acquireNextImage(uint32_t* imageIndex);
         VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
+        bool compareSwapFormats(const VulkanSwapChain& swapChain) const {
+            return swapChain.m_SwapChainDepthFormat == m_SwapChainDepthFormat && swapChain.m_SwapChainImageFormat == m_SwapChainImageFormat;
+        }
+
     private:
 
         void init();
@@ -52,6 +56,7 @@ namespace SpriteSpark {
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
         VkFormat m_SwapChainImageFormat;
+        VkFormat m_SwapChainDepthFormat;
         VkExtent2D m_SwapChainExtent;
 
         std::vector<VkFramebuffer> m_SwapChainFramebuffers;

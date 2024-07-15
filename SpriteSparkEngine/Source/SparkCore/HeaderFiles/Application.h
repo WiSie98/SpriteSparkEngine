@@ -5,10 +5,10 @@
 #include "Platform/Window/HeaderFiles/WindowsWindow.h"
 #include "SparkCore/HeaderFiles/LayerStack.h"
 #include "SparkEvents/GlobalEventDispatcher.h"
+#include "SparkObjects/HeaderFiles/GameObject.h"
+#include "SparkCore/HeaderFiles/Renderer.h"
 
 #include "Platform/Vulkan/HeaderFiles/VulkanDevice.h"
-#include "Platform/Vulkan/HeaderFiles/VulkanPipeline.h"
-#include "Platform/Vulkan/HeaderFiles/VulkanSwapChain.h"
 #include "Platform/Vulkan/HeaderFiles/VulkanModel.h"
 
 namespace SpriteSpark {
@@ -34,24 +34,14 @@ namespace SpriteSpark {
 		LayerStack m_LayerStack;
 
 		VulkanDevice m_Device{ m_Window };
-		std::unique_ptr<VulkanSwapChain> m_SwapChain;
-		std::unique_ptr<VulkanPipeline> m_Pipeline;
-		VkPipelineLayout m_PipelineLayout;
-		std::vector<VkCommandBuffer> m_CommandBuffers;
-		std::unique_ptr<VulkanModel> m_Model;
+		Renderer m_Renderer{ m_Window, m_Device };
+		std::vector<GameObject> m_GameObjects;
 
 		void OnEvent(const Event& e);
 		bool OnWindowResize(const WindowResizeEvent& e);
 		bool OnWindowClose(const WindowCloseEvent& e);
 
-		void loadModels();
-		void createPipelineLayout();
-		void createPipeline();
-		void createCommandBuffers();
-		void freeCommandBuffers();
-		void drawFrame();
-		void recreateSwapChain();
-		void recordCommandBuffer(int imageIndex);
+		void loadGameObjects();
 
 		void sierpinski(std::vector<VulkanModel::Vertex>& vertices, int depth, glm::vec2 left, glm::vec2 right, glm::vec2 top);
 

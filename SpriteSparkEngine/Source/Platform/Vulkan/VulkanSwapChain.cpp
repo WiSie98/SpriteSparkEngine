@@ -272,6 +272,7 @@ namespace SpriteSpark {
 
     void VulkanSwapChain::createDepthResources() {
         VkFormat depthFormat = findDepthFormat();
+        m_SwapChainDepthFormat = depthFormat;
         VkExtent2D swapChainExtent = getSwapChainExtent();
 
         m_DepthImages.resize(imageCount());
