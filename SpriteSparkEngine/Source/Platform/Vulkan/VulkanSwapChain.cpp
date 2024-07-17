@@ -143,8 +143,8 @@ namespace SpriteSpark {
             createInfo.pQueueFamilyIndices = queueFamilyIndices;
         } else {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            createInfo.queueFamilyIndexCount = 0;      // Optional
-            createInfo.pQueueFamilyIndices = nullptr;  // Optional
+            createInfo.queueFamilyIndexCount = 0;
+            createInfo.pQueueFamilyIndices = nullptr;
         }
 
         createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
@@ -159,10 +159,6 @@ namespace SpriteSpark {
             throw std::runtime_error("failed to create swap chain!");
         }
 
-        // we only specified a minimum number of images in the swap chain, so the implementation is
-        // allowed to create a swap chain with more. That's why we'll first query the final number of
-        // images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
-        // retrieve the handles.
         vkGetSwapchainImagesKHR(m_Device.device(), m_SwapChain, &imageCount, nullptr);
         m_SwapChainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(m_Device.device(), m_SwapChain, &imageCount, m_SwapChainImages.data());
@@ -346,8 +342,7 @@ namespace SpriteSpark {
         return availableFormats[0];
     }
 
-    VkPresentModeKHR VulkanSwapChain::chooseSwapPresentMode(
-        const std::vector<VkPresentModeKHR>& availablePresentModes) {
+    VkPresentModeKHR VulkanSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
         for (const auto& availablePresentMode : availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
                 SP_CORE_TRACE("Present mode: Mailbox");
@@ -355,12 +350,12 @@ namespace SpriteSpark {
             }
         }
 
-        // for (const auto &availablePresentMode : availablePresentModes) {
-        //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-        //     SP_CORE_TRACE("Present mode: Immediate");
-        //     return availablePresentMode;
-        //   }
-        // }
+        for (const auto &availablePresentMode : availablePresentModes) {
+           if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+             SP_CORE_TRACE("Present mode: Immediate");
+             return availablePresentMode;
+           }
+        }
 
         SP_CORE_TRACE("Present mode: V-Sync");
         return VK_PRESENT_MODE_FIFO_KHR;
@@ -369,8 +364,7 @@ namespace SpriteSpark {
     VkExtent2D VulkanSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
-        }
-        else {
+        } else {
             VkExtent2D actualExtent = m_WindowExtent;
             actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
             actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));

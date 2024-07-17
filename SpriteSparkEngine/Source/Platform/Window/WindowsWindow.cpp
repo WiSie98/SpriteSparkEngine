@@ -28,9 +28,7 @@ namespace SpriteSpark {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		uint32_t extensionCount = 0;
-
-		SP_CORE_INFO("Creating window ", props.Titel, ", Resolution: ", props.Width, "x", props.Height);
+		SP_CORE_TRACE("Creating window ", props.Titel, ", Resolution: ", props.Width, "x", props.Height);
 
 		if (!s_GLFWInitialized) {
 			int success = glfwInit();
@@ -51,15 +49,11 @@ namespace SpriteSpark {
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
-
+		*/
 		glfwSetWindowSizeCallback(m_Window, GLFWWindowSizeCallback);
 		glfwSetKeyCallback(m_Window, GLFWKeyCallback);
 		glfwSetMouseButtonCallback(m_Window, GLFWMouseButtonCallback);
 		glfwSetCursorPosCallback(m_Window, GLFWCursorPosCallback);
-
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-		SP_CORE_INFO(extensionCount, " extensions supported.");
-		*/
 	}
 
 	void WindowsWindow::Shutdown() {

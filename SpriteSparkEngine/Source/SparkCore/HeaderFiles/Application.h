@@ -10,8 +10,15 @@
 
 #include "Platform/Vulkan/HeaderFiles/VulkanDevice.h"
 #include "Platform/Vulkan/HeaderFiles/VulkanModel.h"
+#include "Platform/Vulkan/HeaderFiles/VulkanBuffer.h"
+#include "Platform/Vulkan/HeaderFiles/VulkanDescriptors.h"
 
 namespace SpriteSpark {
+
+	struct GlobalUniformBuffer {
+		glm::mat4 projectionMatrix{ 1.0f };
+		glm::mat2 transform{ 1.0f };
+	};
 
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
@@ -35,6 +42,8 @@ namespace SpriteSpark {
 
 		VulkanDevice m_Device{ m_Window };
 		Renderer m_Renderer{ m_Window, m_Device };
+
+		std::unique_ptr<VulkanDescriptorPool> m_GlobalDescriptorPool{};
 		std::vector<GameObject> m_GameObjects;
 
 		void OnEvent(const Event& e);

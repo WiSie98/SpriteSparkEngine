@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Platform/Vulkan/HeaderFiles/VulkanDevice.h"
+#include "Platform/Vulkan/HeaderFiles/VulkanBuffer.h"
 
 namespace SpriteSpark {
 
@@ -15,14 +16,20 @@ namespace SpriteSpark {
 	public:
 
 		struct Vertex {
-			glm::vec2 position;
-			glm::vec3 color;
+			glm::vec2 position{};
+			glm::vec3 color{};
+			glm::vec2 uv{};
 
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 		};
 
-		VulkanModel(VulkanDevice& device, const std::vector<Vertex>& vertices);
+		struct Data {
+			std::vector<Vertex> vertices{};
+			std::vector<uint32_t> indices{};
+		};
+
+		VulkanModel(VulkanDevice& device, const Data& data);
 		~VulkanModel();
 
 		VulkanModel(const VulkanModel&) = delete;
@@ -34,11 +41,16 @@ namespace SpriteSpark {
 	private:
 
 		void createVertexBuffers(const std::vector<Vertex>& vertices);
+		void createIndexBuffer(const std::vector<uint32_t>& indices);
 
 		VulkanDevice& m_Device;
-		VkBuffer m_VertexBuffer;
-		VkDeviceMemory m_VertexBufferMemory;
+
+		std::unique_ptr<VulkanBuffer> m_VertexBuffer;
 		uint32_t m_VertexCount;
+
+		bool m_HasIndexBuffer = false;
+		std::unique_ptr<VulkanBuffer> m_IndexBuffer;
+		uint32_t m_IndexCount;
 
 	};
 

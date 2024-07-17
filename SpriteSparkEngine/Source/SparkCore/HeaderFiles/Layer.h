@@ -13,7 +13,7 @@ namespace SpriteSpark {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(double deltaTime) {}
 
 		inline const std::string& GetName() const { return m_DebugName; }
 

@@ -28,7 +28,8 @@ namespace SpriteSpark {
         if (numThreads <= 1 || numThreads > std::thread::hardware_concurrency()) {
             numThreads = std::thread::hardware_concurrency();
         }
-        std::cout << "ThreadPool resized to: " << numThreads << std::endl;
+
+        std::cout << "ThreadPool: Resized to: " << numThreads << std::endl;
         workers.reserve(numThreads);
         for (size_t i = 0; i < numThreads; ++i) {
             workers.emplace_back(&ThreadPool::workerThread, this);

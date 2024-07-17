@@ -21,6 +21,7 @@ namespace SpriteSpark {
 		Renderer& operator=(const Renderer&) = delete;
 
 		VkRenderPass getSwapChainRenderPass() const { return m_SwapChain->getRenderPass(); }
+		float getAspectRatio() const { return m_SwapChain->extentAspectRatio(); }
 		bool isFrameInProgress() const { return m_IsFrameStarted; }
 
 		VkCommandBuffer getCurrentCommandBuffer() const {
@@ -48,10 +49,6 @@ namespace SpriteSpark {
 		uint32_t m_CurrentImageIndex;
 		int m_CurrentFrameIndex = 0;
 		bool m_IsFrameStarted{false};
-
-		void OnEvent(const Event& e);
-		bool OnWindowResize(const WindowResizeEvent& e);
-		bool OnWindowClose(const WindowCloseEvent& e);
 
 		void createCommandBuffers();
 		void freeCommandBuffers();

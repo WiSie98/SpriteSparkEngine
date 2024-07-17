@@ -65,15 +65,19 @@ namespace SpriteSpark {
     }
 
     void VulkanDevice::createInstance() {
+        uint32_t extensionCount = 0;
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+        SP_CORE_TRACE(" Vulkan extensions supported: ", extensionCount);
+
         if (enableValidationLayers && !checkValidationLayerSupport()) {
             throw std::runtime_error("validation layers requested, but not available!");
         }
 
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "LittleVulkanEngine App";
+        appInfo.pApplicationName = "App";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
+        appInfo.pEngineName = "SpriteSpark Engine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -111,7 +115,7 @@ namespace SpriteSpark {
         if (deviceCount == 0) {
             throw std::runtime_error("failed to find GPUs with Vulkan support!");
         }
-        std::cout << "Device count: " << deviceCount << std::endl;
+        SP_CORE_TRACE("Device count: ", deviceCount);
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.data());
 
@@ -127,7 +131,7 @@ namespace SpriteSpark {
         }
 
         vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
-        std::cout << "physical device: " << properties.deviceName << std::endl;
+        SP_CORE_TRACE("Physical device: ", properties.deviceName);
     }
 
     void VulkanDevice::createLogicalDevice() {
@@ -278,17 +282,17 @@ namespace SpriteSpark {
         std::vector<VkExtensionProperties> extensions(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-        std::cout << "available extensions:" << std::endl;
+        SP_CORE_INFO("available extensions: ");
         std::unordered_set<std::string> available;
         for (const auto& extension : extensions) {
-            std::cout << "\t" << extension.extensionName << std::endl;
+            SP_CORE_INFO("\t", extension.extensionName);
             available.insert(extension.extensionName);
         }
 
-        std::cout << "required extensions:" << std::endl;
+        SP_CORE_INFO("required extensions: ");
         auto requiredExtensions = getRequiredExtensions();
         for (const auto& required : requiredExtensions) {
-            std::cout << "\t" << required << std::endl;
+            SP_CORE_INFO("\t", required);
             if (available.find(required) == available.end()) {
                 throw std::runtime_error("Missing required glfw extension");
             }
@@ -469,8 +473,8 @@ namespace SpriteSpark {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
-        copyRegion.srcOffset = 0;  // Optional
-        copyRegion.dstOffset = 0;  // Optional
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SparkCore/HeaderFiles/Core.h"
+#include "SparkCore/HeaderFiles/Camera.h"
+#include "SparkCore/HeaderFiles/FrameInfo.h"
 #include "SparkObjects/HeaderFiles/GameObject.h"
 
 #include "Platform/Vulkan/HeaderFiles/VulkanDevice.h"
@@ -12,13 +14,13 @@ namespace SpriteSpark {
 
 	public:
 
-		RenderSystem(VulkanDevice& device, VkRenderPass renderPass);
+		RenderSystem(VulkanDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects);
+		void renderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
 
 	private:
 
@@ -26,7 +28,7 @@ namespace SpriteSpark {
 		std::unique_ptr<VulkanPipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout;
 
-		void createPipelineLayout();
+		void createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 	};

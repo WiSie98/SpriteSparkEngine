@@ -10,14 +10,14 @@ public:
 
     }
 
-    void OnUpdate() override {
+    void OnUpdate(double deltaTime) override {
 
         if (Input::IsKeyPressed(Key::H)) {
-            SP_INFO("Key Pressed: H ");
+            SP_TRACE("Key Pressed: H ");
         }
-
+        
         if (Input::IsMouseButtonPressed(Mouse::Button0)) {
-            SP_INFO("MouseButton Pressed: LeftMB ");
+            SP_TRACE("MouseButton Pressed: LeftMB ");
         }
     }
 
