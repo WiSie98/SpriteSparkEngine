@@ -41,6 +41,7 @@ namespace SpriteSpark {
         VulkanDevice& operator=(VulkanDevice&&) = delete;
 
         VkCommandPool getCommandPool() { return m_CommandPool; }
+        VkPhysicalDevice getPhysicalDevice() { return m_PhysicalDevice; }
         VkDevice device() { return m_Device; }
         VkSurfaceKHR surface() { return m_Surface; }
         VkQueue graphicsQueue() { return m_GraphicsQueue; }
@@ -74,6 +75,7 @@ namespace SpriteSpark {
         VkPhysicalDeviceProperties properties;
 
     private:
+
         void createInstance();
         void setupDebugMessenger();
         void createSurface();

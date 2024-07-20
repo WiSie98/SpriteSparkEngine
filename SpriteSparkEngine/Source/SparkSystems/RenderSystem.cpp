@@ -12,7 +12,8 @@ namespace SpriteSpark {
     struct SimplePushConstantData {
         glm::mat2 transform{ 1.0f };
         glm::vec2 offset;
-        alignas(16) glm::vec3 color;
+        alignas(16) glm::vec4 color;
+        glm::vec2 uv;
     };
 
     RenderSystem::RenderSystem(VulkanDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout) : m_Device(device) {
@@ -50,6 +51,7 @@ namespace SpriteSpark {
 
         PipelineConfigInfo pipelineConfig{};
         VulkanPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        VulkanPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = m_PipelineLayout;
         m_Pipeline = std::make_unique<VulkanPipeline>(m_Device, "Shaders/SimpleShader.vert.spv", "Shaders/SimpleShader.frag.spv", pipelineConfig);
@@ -60,11 +62,12 @@ namespace SpriteSpark {
 
         vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
-        for (auto& obj : gameObjects) {
+        for (auto it = gameObjects.rbegin(); it != gameObjects.rend(); ++it) {
+            auto& obj = *it;
             SimplePushConstantData push{};
+            push.transform = obj.transform2d.mat2();
             push.offset = obj.transform2d.translation;
             push.color = obj.color;
-            push.transform = obj.transform2d.mat2();
 
             vkCmdPushConstants(frameInfo.commandBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
             obj.model->bind(frameInfo.commandBuffer);

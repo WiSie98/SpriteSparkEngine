@@ -11,6 +11,8 @@
 #include "SparkSystems/HeaderFiles/RenderSystem.h"
 #include "SparkCore/HeaderFiles/Camera.h"
 
+#include "Platform/Vulkan/HeaderFiles/VulkanTexture.h"
+
 namespace SpriteSpark {
 
 	Application::Application() {
@@ -19,9 +21,11 @@ namespace SpriteSpark {
         m_GlobalDescriptorPool = VulkanDescriptorPool::Builder(m_Device)
             .setMaxSets(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         
-        loadGameObjects();
+        loadGameObjects(0.1f, 0.1f, 0.8f, 1.0f);
+        loadGameObjects(1.0f, 1.0f, 1.0f, 1.0f);
 
         EventDispatcher& dispatcher = GlobalEventDispatcher::Get();
         Input::Initialize(dispatcher);
@@ -75,13 +79,22 @@ namespace SpriteSpark {
 
         auto globalSetLayout = VulkanDescriptorSetLayout::Builder(m_Device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
+
+        VulkanTexture texture = VulkanTexture(m_Device, "Textures/Test.png");
+
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.sampler = texture.getSampler();
+        imageInfo.imageView = texture.getImageView();
+        imageInfo.imageLayout = texture.getImageLayout();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++) {
             auto bufferInfo = globalUniformBuffers[i]->descriptorInfo();
             VulkanDescriptorWriter(*globalSetLayout, *m_GlobalDescriptorPool)
                 .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &imageInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -91,6 +104,7 @@ namespace SpriteSpark {
         auto previousTime = std::chrono::high_resolution_clock::now();
         float cameraVelocity = 1.00f;
         float spriteVelocity = 0.05f;
+        float spriteVelocity1 = -0.05f;
 
         // End Initialize
 
@@ -105,10 +119,12 @@ namespace SpriteSpark {
             previousTime = currentTime;
 
             float aspect = m_Renderer.getAspectRatio();
-            camera.setOrthographicProjection(-aspect, aspect, -1.6f, 1.6f);
+            camera.setOrthographicProjection(-aspect, aspect, -1.0f, 1.0f);
 
             while (frameTime > 0.0f) {
                 double deltaTime = std::max(frameTime, 1.0/120.0);
+                
+                // Test Code Start
                 if (m_GameObjects[0].transform2d.translation.x > 2) {
                     spriteVelocity = -0.05f;
                 } else if (m_GameObjects[0].transform2d.translation.x < -2) {
@@ -118,9 +134,15 @@ namespace SpriteSpark {
                 m_GameObjects[0].transform2d.translation.x += spriteVelocity * deltaTime;
                 m_GameObjects[0].transform2d.rotation += 0.05f * deltaTime;
 
-                for (Layer* layer : m_LayerStack) {
-                    layer->OnUpdate(deltaTime);
+                if (m_GameObjects[1].transform2d.translation.x > 2) {
+                    spriteVelocity1 = -0.05f;
                 }
+                else if (m_GameObjects[1].transform2d.translation.x < -2) {
+                    spriteVelocity1 = 0.05f;
+                }
+
+                m_GameObjects[1].transform2d.translation.x += spriteVelocity1 * deltaTime;
+                m_GameObjects[1].transform2d.rotation += 0.05f * deltaTime;
 
                 // Camera test
                 if (Input::IsKeyPressed(Key::W)) {
@@ -137,6 +159,11 @@ namespace SpriteSpark {
                     camera.setZoom(camera.getZoom() + cameraVelocity * deltaTime);
                 } else if (Input::IsKeyPressed(Key::E)) {
                     camera.setZoom(camera.getZoom() - cameraVelocity * deltaTime);
+                }
+                // Test Code End
+
+                for (Layer* layer : m_LayerStack) {
+                    layer->OnUpdate(deltaTime);
                 }
 
                 frameTime -= deltaTime;
@@ -168,41 +195,22 @@ namespace SpriteSpark {
 
 	}
 
-    void Application::loadGameObjects() {
+    void Application::loadGameObjects(float r, float g, float b, float a) {
         VulkanModel::Data modelData{};
 
-        //sierpinski(modelData.vertices, 10, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });
-        modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } });
-        modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f } });
-        modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } });
-        modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f } });
+        modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } });
+        modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } });
+        modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } });
+        modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } });
 
         modelData.indices = {0, 1, 2, 1, 2, 3};
 
         auto m_Model = std::make_shared<VulkanModel>(m_Device, modelData);
         auto gameObj = GameObject::createGameObject();
         gameObj.model = m_Model;
-        gameObj.color = { 0.1f, 0.1f, 0.8f };
-        //gameObj.transform2d.translation.x = 1.0f;
-        //gameObj.transform2d.scale = { 2.0f, 0.5f };
-        //gameObj.transform2d.rotation = 0.25f * glm::two_pi<float>();
+        gameObj.color = { r, g, b, a };
 
         m_GameObjects.push_back(std::move(gameObj));
-    }
-
-    void Application::sierpinski(std::vector<VulkanModel::Vertex>& vertices, int depth, glm::vec2 left, glm::vec2 right, glm::vec2 top) {
-        if (depth <= 0) {
-            vertices.push_back({ top, { 0.0f, 0.0f, 1.0f } });
-            vertices.push_back({ right, { 0.0f, 1.0f, 0.0f } });
-            vertices.push_back({ left, { 1.0f, 0.0f, 0.0f } });
-        } else {
-            auto leftTop = 0.5f * (left + top);
-            auto rightTop = 0.5f * (right + top);
-            auto leftRight = 0.5f * (left + right);
-            sierpinski(vertices, depth - 1, left, leftRight, leftTop);
-            sierpinski(vertices, depth - 1, leftRight, right, rightTop);
-            sierpinski(vertices, depth - 1, leftTop, rightTop, top);
-        }
     }
 
 }

@@ -38,7 +38,7 @@ namespace SpriteSpark {
 		const id_t getId() { return m_Id; }
 
 		std::shared_ptr<VulkanModel> model;
-		glm::vec3 color{};
+		glm::vec4 color{};
 		Transform2dComponent transform2d{};
 
 	private:

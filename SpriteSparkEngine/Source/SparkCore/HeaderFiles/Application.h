@@ -15,11 +15,6 @@
 
 namespace SpriteSpark {
 
-	struct GlobalUniformBuffer {
-		glm::mat4 projectionMatrix{ 1.0f };
-		glm::mat2 transform{ 1.0f };
-	};
-
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 	class Application {
@@ -50,9 +45,7 @@ namespace SpriteSpark {
 		bool OnWindowResize(const WindowResizeEvent& e);
 		bool OnWindowClose(const WindowCloseEvent& e);
 
-		void loadGameObjects();
-
-		void sierpinski(std::vector<VulkanModel::Vertex>& vertices, int depth, glm::vec2 left, glm::vec2 right, glm::vec2 top);
+		void loadGameObjects(float r, float g, float b, float a);
 
 	};
 
