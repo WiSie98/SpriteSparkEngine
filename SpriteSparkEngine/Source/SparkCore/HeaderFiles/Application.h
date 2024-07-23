@@ -17,6 +17,20 @@ namespace SpriteSpark {
 
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
+	struct Rect {
+		float x, y, width, height;
+
+		Rect(float x, float y, float width, float height)
+			: x(x), y(y), width(width), height(height) {}
+
+		void getUVs(float& u_min, float& v_min, float& u_max, float& v_max, int textureSize) {
+			u_min = x / textureSize;
+			v_min = y / textureSize;
+			u_max = (x + width) / textureSize;
+			v_max = (y + height) / textureSize;
+		}
+	};
+
 	class Application {
 
 	public:

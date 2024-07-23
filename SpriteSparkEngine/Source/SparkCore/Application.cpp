@@ -16,6 +16,7 @@
 namespace SpriteSpark {
 
 	Application::Application() {
+        SP_CORE_TRACE("Initializing Application");
 
         //m_Window = std::unique_ptr<Window>(Window::Create());
         m_GlobalDescriptorPool = VulkanDescriptorPool::Builder(m_Device)
@@ -32,7 +33,7 @@ namespace SpriteSpark {
 
         dispatcher.registerListener<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
         dispatcher.registerListener<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
-
+        SP_CORE_TRACE("Application initializatized successfully!");
 	}
 
 	Application::~Application() {
@@ -82,7 +83,7 @@ namespace SpriteSpark {
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
 
-        VulkanTexture texture = VulkanTexture(m_Device, "Textures/Test.png");
+        VulkanTexture texture = VulkanTexture(m_Device, "Textures/dk_ts_woodlandbiom.png");
 
         VkDescriptorImageInfo imageInfo{};
         imageInfo.sampler = texture.getSampler();
@@ -161,10 +162,16 @@ namespace SpriteSpark {
     void Application::loadGameObjects(float r, float g, float b, float a) {
         VulkanModel::Data modelData{};
 
-        modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } });
-        modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } });
-        modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } });
-        modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } });
+        int textureSize = 512;
+        Rect spriteRect(64, 0, 16, 16);
+
+        float u_min, v_min, u_max, v_max;
+        spriteRect.getUVs(u_min, v_min, u_max, v_max, textureSize);
+
+        modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_max } });     // Left/Bottom
+        modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_min } });    // Left/Top
+        modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_max } });    // Right/Bottom
+        modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_min } });   // Right/Top
 
         modelData.indices = {0, 1, 2, 1, 2, 3};
 

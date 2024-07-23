@@ -7,17 +7,39 @@ class TestLayer : public Layer {
 public:
 
     TestLayer() : Layer("Test") {
+        sound.setFilepath("Sound/Overworld Theme - Super Mario World.mp3");
 
+        Entity entity1 = entityManager.createEntity();
+        Entity entity2 = entityManager.createEntity();
+
+        entityManager.addComponent(entity1, Position{ 0, 0 });
+        entityManager.addComponent(entity1, Direction{ 1, 1 });
+        entityManager.addComponent(entity2, Position{ 0, 0 });
+        entityManager.addComponent(entity2, Direction{ -1, -1 });
     }
 
     void OnUpdate(double deltaTime, Camera& camera, std::vector<GameObject>& gameObjects) override {
 
+        // Sound Test Start
         if (Input::IsKeyPressed(Key::H)) {
-            SP_TRACE("Key Pressed: H ");
+            sound.play();
         }
+
+        if (Input::IsKeyPressed(Key::Up)) {
+            if (volume < 1.0f) volume += 0.0001f;
+            sound.setVolume(volume);
+        } else if (Input::IsKeyPressed(Key::Down)) {
+            if (volume > 0.0f) volume -= 0.0001f;
+            sound.setVolume(volume);
+        }
+
+        if (Input::IsKeyPressed(Key::P)) {
+            sound.pause();
+        }
+        // Sound Test End
         
         if (Input::IsMouseButtonPressed(Mouse::Button0)) {
-            SP_TRACE("MouseButton Pressed: LeftMB ");
+            //SP_TRACE("MouseButton Pressed: LeftMB ");
         }
 
         // Test Code Start
@@ -62,6 +84,17 @@ public:
             camera.setZoom(camera.getZoom() - cameraVelocity * deltaTime);
         }
         // Test Code End
+
+        // ECS Test Start
+        movementSystem.update(entityManager, deltaTime);
+
+        Position* pos1 = entityManager.getComponent<Position>(entityManager.getEntityById(0));
+        Position* pos2 = entityManager.getComponent<Position>(entityManager.getEntityById(1));
+
+        SP_TRACE("Entity 1 Position: (", pos1->x, ", ", pos1->y, ")");
+        SP_TRACE("Entity 2 Position: (", pos2->x, ", ", pos2->y, ")");
+        // ECS Test End
+
     }
 
     void OnRender(RenderSystem& renderSystem, FrameInfo& frameInfo, std::vector<GameObject>& gameObjects) override {
@@ -71,6 +104,12 @@ public:
     float cameraVelocity = 0.5f;
     float spriteVelocity = 0.05f;
     float spriteVelocity1 = -0.05f;
+
+    Sound sound;
+    float volume = 1.0f;
+
+    EntityManager entityManager;
+    MovementSystem movementSystem;
 
 };
 

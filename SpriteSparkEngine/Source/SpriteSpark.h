@@ -15,6 +15,7 @@
 #include "SparkCore/HeaderFiles/Camera.h"
 #include "SparkCore/HeaderFiles/Renderer.h"
 #include "SparkCore/HeaderFiles/FrameInfo.h"
+#include "SparkCore/HeaderFiles/Sound.h"
 // -----------------------------------------------
 
 // ------------------Platform---------------------
@@ -37,6 +38,12 @@
 #include "SparkEvents/KeyEvent.h"
 #include "SparkEvents/MouseEvent.h"
 #include "SparkEvents/GlobalEventDispatcher.h"
+// -----------------------------------------------
+
+// -------------------SparkECS--------------------
+#include "SparkECS/HeaderFiles/EntityComponents.h"
+#include "SparkECS/HeaderFiles/EntityManager.h"
+#include "SparkECS/HeaderFiles/EntitySystems.h"
 // -----------------------------------------------
 
 // -----------------SparkObjects------------------

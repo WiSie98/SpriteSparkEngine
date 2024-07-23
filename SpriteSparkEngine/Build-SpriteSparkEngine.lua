@@ -20,17 +20,20 @@ project "SpriteSparkEngine"
       "Source",
       "Vendor/GLFW/include",
       "Vendor/Vulkan/Include",
+      "Vendor/OpenAL/include",
       "Vendor/GLM"
    }
 
    libdirs {
         "Vendor/Vulkan/Lib",
+        "Vendor/OpenAL/libs/Win64",
         "Vendor/GLFW/lib-vc2022"
    }
 
    links {
         "glfw3.lib",
-        "vulkan-1.lib"
+        "vulkan-1.lib",
+        "OpenAL32.lib"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

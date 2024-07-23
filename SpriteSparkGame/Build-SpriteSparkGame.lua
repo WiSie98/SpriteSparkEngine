@@ -24,18 +24,21 @@ project "SpriteSparkGame"
 	  "../SpriteSparkEngine/Source",
       "../SpriteSparkEngine/Vendor/Vulkan/Include",
       "../SpriteSparkEngine/Vendor/GLFW/include",
+      "../SpriteSparkEngine/Vendor/OpenAL/include",
       "../SpriteSparkEngine/Vendor/GLM"
    }
 
    libdirs {
        "../SpriteSparkEngine/Vendor/Vulkan/Lib",
+       "../SpriteSparkEngine/Vendor/OpenAL/libs/Win64",
        "../SpriteSparkEngine/Vendor/GLFW/lib-vc2022"
     }
 
    links {
       "SpriteSparkEngine",
       "glfw3.lib",
-      "vulkan-1.lib"
+      "vulkan-1.lib",
+      "OpenAL32.lib"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

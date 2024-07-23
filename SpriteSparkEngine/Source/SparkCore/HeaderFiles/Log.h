@@ -90,7 +90,7 @@ namespace SpriteSpark {
                 oss << "[" << GetCurrentTime() << "] ";
                 AppendToStream(oss, str, args...);
                 ResetConsoleColor(oss);
-                oss << std::endl;
+                oss << "\n";
                 std::cout << oss.str();
                 });
         }
