@@ -117,10 +117,10 @@ namespace SpriteSpark {
 				dispatcher.bufferEvent(std::make_shared<KeyReleasedEvent>(key));
 				break;
 			}
-			case GLFW_REPEAT: {
+			/*case GLFW_REPEAT: {
 				dispatcher.bufferEvent(std::make_shared<KeyPressedEvent>(key, true));
 				break;
-			}
+			}*/
 		}
 	}
 

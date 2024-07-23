@@ -29,6 +29,9 @@ namespace SpriteSpark {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 
+		static Application& Get() { return *s_Instance; }
+		Window& GetWindow() { return m_Window; }
+
 	private:
 
 		WindowsWindow m_Window;
@@ -40,6 +43,8 @@ namespace SpriteSpark {
 
 		std::unique_ptr<VulkanDescriptorPool> m_GlobalDescriptorPool{};
 		std::vector<GameObject> m_GameObjects;
+
+		static Application* s_Instance;
 
 		void OnEvent(const Event& e);
 		bool OnWindowResize(const WindowResizeEvent& e);

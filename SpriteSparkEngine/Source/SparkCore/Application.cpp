@@ -102,9 +102,6 @@ namespace SpriteSpark {
         Camera camera{};
 
         auto previousTime = std::chrono::high_resolution_clock::now();
-        float cameraVelocity = 1.00f;
-        float spriteVelocity = 0.05f;
-        float spriteVelocity1 = -0.05f;
 
         // End Initialize
 
@@ -123,47 +120,9 @@ namespace SpriteSpark {
 
             while (frameTime > 0.0f) {
                 double deltaTime = std::max(frameTime, 1.0/120.0);
-                
-                // Test Code Start
-                if (m_GameObjects[0].transform2d.translation.x > 2) {
-                    spriteVelocity = -0.05f;
-                } else if (m_GameObjects[0].transform2d.translation.x < -2) {
-                    spriteVelocity = 0.05f;
-                }
-
-                m_GameObjects[0].transform2d.translation.x += spriteVelocity * deltaTime;
-                m_GameObjects[0].transform2d.rotation += 0.05f * deltaTime;
-
-                if (m_GameObjects[1].transform2d.translation.x > 2) {
-                    spriteVelocity1 = -0.05f;
-                }
-                else if (m_GameObjects[1].transform2d.translation.x < -2) {
-                    spriteVelocity1 = 0.05f;
-                }
-
-                m_GameObjects[1].transform2d.translation.x += spriteVelocity1 * deltaTime;
-                m_GameObjects[1].transform2d.rotation += 0.05f * deltaTime;
-
-                // Camera test
-                if (Input::IsKeyPressed(Key::W)) {
-                    camera.setPosition({camera.getPosition().x, camera.getPosition().y - cameraVelocity * deltaTime, 0.0f });
-                } else if (Input::IsKeyPressed(Key::S)) {
-                    camera.setPosition({ camera.getPosition().x, camera.getPosition().y + cameraVelocity * deltaTime, 0.0f });
-                } else if (Input::IsKeyPressed(Key::A)) {
-                    camera.setPosition({ camera.getPosition().x - cameraVelocity * deltaTime, camera.getPosition().y, 0.0f });
-                } else if (Input::IsKeyPressed(Key::D)) {
-                    camera.setPosition({ camera.getPosition().x + cameraVelocity * deltaTime, camera.getPosition().y, 0.0f });
-                }
-
-                if (Input::IsKeyPressed(Key::Q)) {
-                    camera.setZoom(camera.getZoom() + cameraVelocity * deltaTime);
-                } else if (Input::IsKeyPressed(Key::E)) {
-                    camera.setZoom(camera.getZoom() - cameraVelocity * deltaTime);
-                }
-                // Test Code End
 
                 for (Layer* layer : m_LayerStack) {
-                    layer->OnUpdate(deltaTime);
+                    layer->OnUpdate(deltaTime, camera, m_GameObjects);
                 }
 
                 frameTime -= deltaTime;
@@ -182,7 +141,11 @@ namespace SpriteSpark {
 
                 // Rendering frame
                 m_Renderer.beginSwapChainRenderPass(m_CommandBuffer);
-                renderSystem.renderGameObjects(frameInfo, m_GameObjects);
+
+                for (Layer* layer : m_LayerStack) {
+                    layer->OnRender(renderSystem, frameInfo, m_GameObjects);
+                }
+
                 m_Renderer.endSwapChainRenderPass(m_CommandBuffer);
                 m_Renderer.endFrame();
             }

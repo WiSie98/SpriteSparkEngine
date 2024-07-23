@@ -63,9 +63,19 @@ namespace SpriteSpark {
         }
 
         static void Clear() {
-            s_Instance->m_KeyPressed.clear();
+            for (const auto& key : s_Instance->m_KeyReleased) {
+                if (key.second) {
+                    s_Instance->m_KeyPressed[key.first] = false;
+                }
+            }
+
+            for (const auto& key : s_Instance->m_MouseButtonReleased) {
+                if (key.second) {
+                    s_Instance->m_MouseButtonPressed[key.first] = false;
+                }
+            }
+
             s_Instance->m_KeyReleased.clear();
-            s_Instance->m_MouseButtonPressed.clear();
             s_Instance->m_MouseButtonReleased.clear();
         }
 
