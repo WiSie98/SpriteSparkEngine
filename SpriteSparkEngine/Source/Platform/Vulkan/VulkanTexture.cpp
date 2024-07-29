@@ -4,12 +4,12 @@
 #include "Platform/Vulkan/HeaderFiles/VulkanBuffer.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "External/std_image.h"
+#include <External/std_image.h>
 
 namespace SpriteSpark {
 
 	VulkanTexture::VulkanTexture(VulkanDevice& device, const std::string& filepath) : m_Device(device) {
-        int channels;
+        //int channels;
         int m_BytesPerPixel;
 
         auto data = stbi_load(filepath.c_str(), &m_Width, &m_Height, &m_BytesPerPixel, 4);
@@ -157,8 +157,8 @@ namespace SpriteSpark {
         int32_t mipWidth = m_Width;
         int32_t mipHeight = m_Height;
 
-        for (uint32_t i = 1; i < m_MipLevels; i++) {
-            barrier.subresourceRange.baseMipLevel = i - 1;
+        for (int i = 1; i < m_MipLevels; i++) {
+            barrier.subresourceRange.baseMipLevel = static_cast<uint32_t>(i - 1);
             barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
             barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -170,13 +170,13 @@ namespace SpriteSpark {
             blit.srcOffsets[0] = { 0, 0, 0 };
             blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
             blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            blit.srcSubresource.mipLevel = i - 1;
+            blit.srcSubresource.mipLevel = static_cast<uint32_t>(i - 1);
             blit.srcSubresource.baseArrayLayer = 0;
             blit.srcSubresource.layerCount = 1;
             blit.dstOffsets[0] = { 0, 0, 0 };
             blit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
             blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            blit.dstSubresource.mipLevel = i;
+            blit.dstSubresource.mipLevel = static_cast<uint32_t>(i);
             blit.dstSubresource.baseArrayLayer = 0;
             blit.dstSubresource.layerCount = 1;
 

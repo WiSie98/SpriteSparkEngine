@@ -2,6 +2,7 @@
 
 #include "SparkCore/HeaderFiles/Core.h"
 #include "SparkCore/HeaderFiles/Window.h"
+#include "SparkCore/HeaderFiles/FrameInfo.h"
 #include "Platform/Window/HeaderFiles/WindowsWindow.h"
 
 #include "Platform/Vulkan/HeaderFiles/VulkanDevice.h"
@@ -35,7 +36,7 @@ namespace SpriteSpark {
 		}
 
 		VkCommandBuffer beginFrame();
-		void endFrame();
+		void endFrame(FrameInfo& frameInfo);
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 

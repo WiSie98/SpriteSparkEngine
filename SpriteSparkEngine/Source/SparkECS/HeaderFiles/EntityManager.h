@@ -2,7 +2,6 @@
 
 #include "Sparkpch.h"
 
-
 class Entity {
 public:
     std::uint64_t id;
@@ -34,10 +33,11 @@ template <typename T>
 class Component : public IComponent {
 
 public:
-
     T data;
 
-    Component(T componentData) : data(componentData) {}
+    // Perfect forwarding constructor
+    template <typename U>
+    Component(U&& componentData) : data(std::forward<U>(componentData)) {}
 };
 
 class EntityManager {
@@ -81,12 +81,12 @@ public:
     }
 
     template <typename T>
-    void addComponent(Entity entity, T component) {
+    void addComponent(Entity entity, T&& component) {
         auto& componentVector = m_Components[typeid(T).hash_code()];
         if (entity.id >= componentVector.size()) {
             componentVector.resize(entity.id + 1);
         }
-        componentVector[entity.id] = std::make_shared<Component<T>>(component);
+        componentVector[entity.id] = std::make_shared<Component<T>>(std::forward<T>(component));
     }
 
     template <typename T>

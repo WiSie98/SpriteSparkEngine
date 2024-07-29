@@ -84,6 +84,8 @@ namespace SpriteSpark {
         VulkanDescriptorPool(const VulkanDescriptorPool&) = delete;
         VulkanDescriptorPool& operator=(const VulkanDescriptorPool&) = delete;
 
+        VkDescriptorPool getVkDescriptorPool() const { return m_DescriptorPool; }
+
         bool allocateDescriptor(
             const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 

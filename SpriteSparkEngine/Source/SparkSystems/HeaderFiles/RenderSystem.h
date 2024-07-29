@@ -2,7 +2,10 @@
 
 #include "SparkCore/HeaderFiles/Core.h"
 #include "SparkCore/HeaderFiles/Camera.h"
+#include "SparkCore/HeaderFiles/GlobalLoader.h"
 #include "SparkCore/HeaderFiles/FrameInfo.h"
+
+#include "SparkECS/HeaderFiles/EntitySystems.h"
 #include "SparkObjects/HeaderFiles/GameObject.h"
 
 #include "Platform/Vulkan/HeaderFiles/VulkanDevice.h"
@@ -10,11 +13,11 @@
 
 namespace SpriteSpark {
 
-	class RenderSystem {
+	class RenderSystem : public System<RenderSystem> {
 
 	public:
 
-		RenderSystem(VulkanDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout);
+		RenderSystem();
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;

@@ -135,6 +135,18 @@ Notes
 - dr_wav will try to read the WAV file as best it can, even if it's not strictly conformant to the WAV format.
 */
 
+#pragma warning(push, 0) // Disable all warnings
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall" // Disable all common warnings
+#pragma GCC diagnostic ignored "-Wextra" // Disable extra warnings
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic warnings
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall" // Disable all common warnings
+#pragma clang diagnostic ignored "-Wextra" // Disable extra warnings
+#pragma clang diagnostic ignored "-Wpedantic" // Disable pedantic warnings
+
 #ifndef dr_wav_h
 #define dr_wav_h
 
@@ -2708,7 +2720,7 @@ DRWAV_PRIVATE drwav_uint64 drwav__metadata_process_unknown_chunk(drwav__metadata
 
 DRWAV_PRIVATE drwav_bool32 drwav__chunk_matches(drwav_metadata_type allowedMetadataTypes, const drwav_uint8* pChunkID, drwav_metadata_type type, const char* pID)
 {
-    return (allowedMetadataTypes & type) && drwav_fourcc_equal(pChunkID, pID);
+    return (allowedMetadataTypes & type) & drwav_fourcc_equal(pChunkID, pID);
 }
 
 DRWAV_PRIVATE drwav_uint64 drwav__metadata_process_chunk(drwav__metadata_parser* pParser, const drwav_chunk_header* pChunkHeader, drwav_metadata_type allowedMetadataTypes)
@@ -8484,6 +8496,10 @@ DRWAV_API drwav_bool32 drwav_fourcc_equal(const drwav_uint8* a, const char* b)
 
 #endif  /* dr_wav_c */
 #endif  /* DR_WAV_IMPLEMENTATION */
+
+#pragma GCC diagnostic pop
+#pragma clang diagnostic pop
+#pragma warning(pop)
 
 /*
 REVISION HISTORY

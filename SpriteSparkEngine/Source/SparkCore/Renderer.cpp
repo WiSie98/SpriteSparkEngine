@@ -81,7 +81,7 @@ namespace SpriteSpark {
         return commandBuffer;
     }
 
-    void Renderer::endFrame() {
+    void Renderer::endFrame(FrameInfo& frameInfo) {
         assert(m_IsFrameStarted && "Cannot call endFrame while frame is not in progress!");
 
         auto commandBuffer = getCurrentCommandBuffer();
@@ -93,9 +93,19 @@ namespace SpriteSpark {
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.WasWindowResized()) {
             m_Window.resetWindowResizedFlag();
             recreateSwapChain();
-        } else if (result != VK_SUCCESS) {
+        }
+        else if (result != VK_SUCCESS) {
             throw std::runtime_error("failed to present swap chain image!");
         }
+
+        vkQueueWaitIdle(m_Device.graphicsQueue());
+
+        for (auto& descriptorSetList : frameInfo.descriptorSetsToFree) {
+            if (!descriptorSetList.empty()) {
+                frameInfo.globalDescriptorPool->freeDescriptors(descriptorSetList);
+            }
+        }
+        frameInfo.descriptorSetsToFree.clear();
 
         m_IsFrameStarted = false;
         m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % VulkanSwapChain::MAX_FRAMES_IN_FLIGHT;

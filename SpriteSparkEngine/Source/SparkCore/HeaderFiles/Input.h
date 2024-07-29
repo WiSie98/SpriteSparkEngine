@@ -9,74 +9,70 @@ namespace SpriteSpark {
 
     class Input {
     public:
-        Input(EventDispatcher& dispatcher) {
-            m_Dispatcher = &dispatcher;
-
-            m_Dispatcher->registerListener<KeyPressedEvent>([this](const KeyPressedEvent& e) {
+        Input() {
+            GlobalEventDispatcher::Get().registerListener<KeyPressedEvent>([this](const KeyPressedEvent& e) {
                 m_KeyPressed[e.GetKeyCode()] = true;
                 });
 
-            m_Dispatcher->registerListener<KeyReleasedEvent>([this](const KeyReleasedEvent& e) {
+            GlobalEventDispatcher::Get().registerListener<KeyReleasedEvent>([this](const KeyReleasedEvent& e) {
                 m_KeyReleased[e.GetKeyCode()] = true;
                 });
 
-            m_Dispatcher->registerListener<MouseButtonPressedEvent>([this](const MouseButtonPressedEvent& e) {
+            GlobalEventDispatcher::Get().registerListener<MouseButtonPressedEvent>([this](const MouseButtonPressedEvent& e) {
                 m_MouseButtonPressed[e.GetMouseButton()] = true;
                 });
 
-            m_Dispatcher->registerListener<MouseButtonReleasedEvent>([this](const MouseButtonReleasedEvent& e) {
+            GlobalEventDispatcher::Get().registerListener<MouseButtonReleasedEvent>([this](const MouseButtonReleasedEvent& e) {
                 m_MouseButtonReleased[e.GetMouseButton()] = true;
                 });
 
-            m_Dispatcher->registerListener<MouseMovedEvent>([this](const MouseMovedEvent& e) {
+            GlobalEventDispatcher::Get().registerListener<MouseMovedEvent>([this](const MouseMovedEvent& e) {
                 m_MouseX = e.GetX();
                 m_MouseY = e.GetY();
                 });
         }
 
-        static bool IsKeyPressed(KeyCode keycode) {
-            return s_Instance->m_KeyPressed[keycode];
+        ~Input() {}
+
+        static bool IsKeyPressed(const KeyCode& keycode) {
+            return Get().m_KeyPressed[keycode];
         }
 
-        static bool IsKeyReleased(KeyCode keycode) {
-            return s_Instance->m_KeyReleased[keycode];
+        static bool IsKeyReleased(const KeyCode& keycode) {
+            return Get().m_KeyReleased[keycode];
         }
 
-        static bool IsMouseButtonPressed(MouseCode button) {
-            return s_Instance->m_MouseButtonPressed[button];
+        static bool IsMouseButtonPressed(const MouseCode& button) {
+            return Get().m_MouseButtonPressed[button];
         }
 
-        static bool IsMouseButtonReleased(MouseCode button) {
-            return s_Instance->m_MouseButtonReleased[button];
+        static bool IsMouseButtonReleased(const MouseCode& button) {
+            return Get().m_MouseButtonReleased[button];
         }
 
         static float GetMouseX() {
-            return s_Instance->m_MouseX;
+            return Get().m_MouseX;
         }
 
         static float GetMouseY() {
-            return s_Instance->m_MouseY;
-        }
-
-        static void Initialize(EventDispatcher& dispatcher) {
-            s_Instance = new Input(dispatcher);
+            return Get().m_MouseY;
         }
 
         static void Clear() {
-            for (const auto& key : s_Instance->m_KeyReleased) {
+            for (const auto& key : Get().m_KeyReleased) {
                 if (key.second) {
-                    s_Instance->m_KeyPressed[key.first] = false;
+                    Get().m_KeyPressed[key.first] = false;
                 }
             }
 
-            for (const auto& key : s_Instance->m_MouseButtonReleased) {
+            for (const auto& key : Get().m_MouseButtonReleased) {
                 if (key.second) {
-                    s_Instance->m_MouseButtonPressed[key.first] = false;
+                    Get().m_MouseButtonPressed[key.first] = false;
                 }
             }
 
-            s_Instance->m_KeyReleased.clear();
-            s_Instance->m_MouseButtonReleased.clear();
+            Get().m_KeyReleased.clear();
+            Get().m_MouseButtonReleased.clear();
         }
 
     private:
@@ -86,9 +82,10 @@ namespace SpriteSpark {
         std::unordered_map<MouseCode, bool> m_MouseButtonReleased;
         float m_MouseX = 0.0f, m_MouseY = 0.0f;
 
-        EventDispatcher* m_Dispatcher;
-
-        static Input* s_Instance;
+        inline static Input& Get() {
+            static Input input;
+            return input;
+        }
     };
 
 }

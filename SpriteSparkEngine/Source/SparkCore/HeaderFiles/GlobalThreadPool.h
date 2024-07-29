@@ -8,8 +8,8 @@ namespace SpriteSpark {
 
     public:
 
-        inline static SpriteSpark::ThreadPool& Get() {
-            static SpriteSpark::ThreadPool threadPool;
+        inline static ThreadPool& Get() {
+            static ThreadPool threadPool;
             return threadPool;
         }
 

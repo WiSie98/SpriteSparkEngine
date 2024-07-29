@@ -19,6 +19,7 @@ namespace SpriteSpark {
 
 		void OnUpdate() override;
 		bool ShouldClose() override;
+		void setShouldClose(bool value);
 
 		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface) override;
 

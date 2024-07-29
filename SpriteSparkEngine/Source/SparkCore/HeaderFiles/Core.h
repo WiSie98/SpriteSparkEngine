@@ -17,3 +17,17 @@
 #define SP_CORE_ASSERT(x, ...)
 
 #endif
+
+struct Rect {
+	float x, y, width, height;
+
+	Rect() :x(0), y(0), width(0), height(0) {}
+	Rect(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
+
+	void getUVs(float& u_min, float& v_min, float& u_max, float& v_max, float textureWidth, float textureHeight) {
+		u_min = x / textureWidth;
+		v_min = y / textureHeight;
+		u_max = (x + width) / textureWidth;
+		v_max = (y + height) / textureHeight;
+	}
+};

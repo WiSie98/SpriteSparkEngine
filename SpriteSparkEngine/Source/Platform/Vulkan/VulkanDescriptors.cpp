@@ -172,7 +172,7 @@ namespace SpriteSpark {
         for (auto& write : m_Writes) {
             write.dstSet = set;
         }
-        vkUpdateDescriptorSets(m_Pool.m_Device.device(), m_Writes.size(), m_Writes.data(), 0, nullptr);
+        vkUpdateDescriptorSets(m_Pool.m_Device.device(),static_cast<uint32_t>(m_Writes.size()), m_Writes.data(), 0, nullptr);
     }
 
 }

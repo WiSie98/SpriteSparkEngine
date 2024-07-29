@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Sparkpch.h"
-
 #include <al.h>
 #include <alc.h>
 

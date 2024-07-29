@@ -2,8 +2,11 @@
 
 // For use by SpriteSpark Applications
 
+#include "Sparkpch.h"
+
 // -----------------SparkCore---------------------
 #include "SparkCore/HeaderFiles/Core.h"
+#include "SparkCore/HeaderFiles/GlobalLoader.h"
 #include "SparkCore/HeaderFiles/Application.h"
 #include "SparkCore/HeaderFiles/Log.h"
 #include "SparkCore/HeaderFiles/GlobalThreadPool.h"

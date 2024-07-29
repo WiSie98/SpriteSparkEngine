@@ -1,4 +1,5 @@
 #version 450
+#extension GL_KHR_vulkan_glsl : enable
 
 layout(location = 0) in vec4 fragColor;
 layout(location = 1) in vec2 fragUV;
@@ -9,7 +10,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 projectionMatrix;
 } ubo;
 
-layout(set = 0, binding = 1) uniform sampler2D image;
+layout(set = 1, binding = 1) uniform sampler2D image;
 
 layout(push_constant) uniform Push {
 	mat2 transform;

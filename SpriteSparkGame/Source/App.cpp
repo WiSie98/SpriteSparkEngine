@@ -6,19 +6,25 @@ class TestLayer : public Layer {
 
 public:
 
-    TestLayer() : Layer("Test") {
+    TestLayer() : Layer("Test") {}
+
+    void OnInit() override {
         sound.setFilepath("Sound/Overworld Theme - Super Mario World.mp3");
 
         Entity entity1 = entityManager.createEntity();
         Entity entity2 = entityManager.createEntity();
 
+        std::string file = "Textures/Test.png";
+
         entityManager.addComponent(entity1, Position{ 0, 0 });
         entityManager.addComponent(entity1, Direction{ 1, 1 });
+        entityManager.addComponent(entity1, Transform{ {1.0f, 1.0f}, {1.0f, 1.0f}, 0.0f });
+        entityManager.addComponent(entity1, Sprite(file, {0, 0, 16, 16}));
         entityManager.addComponent(entity2, Position{ 0, 0 });
         entityManager.addComponent(entity2, Direction{ -1, -1 });
     }
 
-    void OnUpdate(double deltaTime, Camera& camera, std::vector<GameObject>& gameObjects) override {
+    void OnUpdate(float deltaTime, Camera& camera, std::vector<GameObject>& gameObjects) override {
 
         // Sound Test Start
         if (Input::IsKeyPressed(Key::H)) {
@@ -37,11 +43,6 @@ public:
             sound.pause();
         }
         // Sound Test End
-        
-        if (Input::IsMouseButtonPressed(Mouse::Button0)) {
-            //SP_TRACE("MouseButton Pressed: LeftMB ");
-        }
-
         // Test Code Start
         if (gameObjects[0].transform2d.translation.x > 2) {
             spriteVelocity = -0.05f;
@@ -88,11 +89,11 @@ public:
         // ECS Test Start
         movementSystem.update(entityManager, deltaTime);
 
-        Position* pos1 = entityManager.getComponent<Position>(entityManager.getEntityById(0));
-        Position* pos2 = entityManager.getComponent<Position>(entityManager.getEntityById(1));
+        //Position* pos1 = entityManager.getComponent<Position>(entityManager.getEntityById(0));
+        //Position* pos2 = entityManager.getComponent<Position>(entityManager.getEntityById(1));
 
-        SP_TRACE("Entity 1 Position: (", pos1->x, ", ", pos1->y, ")");
-        SP_TRACE("Entity 2 Position: (", pos2->x, ", ", pos2->y, ")");
+        //SP_TRACE("Entity 1 Position: (", pos1->x, ", ", pos1->y, ")");
+        //SP_TRACE("Entity 2 Position: (", pos2->x, ", ", pos2->y, ")");
         // ECS Test End
 
     }

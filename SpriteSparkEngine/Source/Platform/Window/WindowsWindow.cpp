@@ -76,6 +76,10 @@ namespace SpriteSpark {
 		return glfwWindowShouldClose(m_Window);
 	}
 
+	void WindowsWindow::setShouldClose(bool value) {
+		glfwSetWindowShouldClose(m_Window, value);
+	}
+
 	void WindowsWindow::SetVSync(bool enabled) {
 		if (enabled) {
 			glfwSwapInterval(1);
@@ -100,21 +104,17 @@ namespace SpriteSpark {
 		win->m_Data.Width = width;
 		win->m_Data.Height = height;
 
-		auto& dispatcher = GlobalEventDispatcher::Get();
-		dispatcher.bufferEvent(std::make_shared<WindowResizeEvent>(width, height));
+		GlobalEventDispatcher::Get().bufferEvent(std::make_shared<WindowResizeEvent>(width, height));
 	}
 
 	void WindowsWindow::GLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		WindowsWindow* win = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
-
-		auto& dispatcher = GlobalEventDispatcher::Get();
 		switch (action) {
 			case GLFW_PRESS: {
-				dispatcher.bufferEvent(std::make_shared<KeyPressedEvent>(key, false));
+				GlobalEventDispatcher::Get().bufferEvent(std::make_shared<KeyPressedEvent>(key, false));
 				break;
 			}
 			case GLFW_RELEASE: {
-				dispatcher.bufferEvent(std::make_shared<KeyReleasedEvent>(key));
+				GlobalEventDispatcher::Get().bufferEvent(std::make_shared<KeyReleasedEvent>(key));
 				break;
 			}
 			/*case GLFW_REPEAT: {
@@ -125,31 +125,20 @@ namespace SpriteSpark {
 	}
 
 	void WindowsWindow::GLFWMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-		WindowsWindow* win = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
-
-		auto& dispatcher = GlobalEventDispatcher::Get();
 		switch (action) {
 			case GLFW_PRESS: {
-				dispatcher.bufferEvent(std::make_shared<MouseButtonPressedEvent>(button));
+				GlobalEventDispatcher::Get().bufferEvent(std::make_shared<MouseButtonPressedEvent>(button));
 				break;
 			}
 			case GLFW_RELEASE: {
-				dispatcher.bufferEvent(std::make_shared<MouseButtonReleasedEvent>(button));
+				GlobalEventDispatcher::Get().bufferEvent(std::make_shared<MouseButtonReleasedEvent>(button));
 				break;
 			}
 		}
 	}
 
 	void WindowsWindow::GLFWCursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-		//SP_CORE_INFO("GLFWCursorPosCallback triggered with posX: ", xpos, ", posY: ", ypos);
-		WindowsWindow* win = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
-		if (win == nullptr) {
-			SP_CORE_ERROR("Window pointer is null!");
-			return;
-		}
-
-		auto& dispatcher = GlobalEventDispatcher::Get();
-		dispatcher.bufferEvent(std::make_shared<MouseMovedEvent>((float)xpos, (float)ypos));
+		GlobalEventDispatcher::Get().bufferEvent(std::make_shared<MouseMovedEvent>((float)xpos, (float)ypos));
 	}
 
 }

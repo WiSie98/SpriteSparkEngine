@@ -11,28 +11,21 @@
 #include "SparkSystems/HeaderFiles/RenderSystem.h"
 #include "SparkCore/HeaderFiles/Camera.h"
 
-#include "Platform/Vulkan/HeaderFiles/VulkanTexture.h"
-
 namespace SpriteSpark {
 
 	Application::Application() {
         SP_CORE_TRACE("Initializing Application");
 
         //m_Window = std::unique_ptr<Window>(Window::Create());
-        m_GlobalDescriptorPool = VulkanDescriptorPool::Builder(m_Device)
-            .setMaxSets(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .build();
-        
-        loadGameObjects(0.1f, 0.1f, 0.8f, 1.0f);
-        loadGameObjects(1.0f, 1.0f, 1.0f, 1.0f);
 
-        EventDispatcher& dispatcher = GlobalEventDispatcher::Get();
-        Input::Initialize(dispatcher);
+        std::string filePath1 = "Textures/dk_ts_woodlandbiom.png";
+        std::string filePath2 = "Textures/Test.png";
 
-        dispatcher.registerListener<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
-        dispatcher.registerListener<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
+        loadGameObjects(1.0f, 1.0f, 1.0f, 1.0f, filePath1);
+        loadGameObjects(1.0f, 1.0f, 1.0f, 1.0f, filePath2);
+
+        GlobalEventDispatcher::Get().registerListener<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+        GlobalEventDispatcher::Get().registerListener<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
         SP_CORE_TRACE("Application initializatized successfully!");
 	}
 
@@ -65,62 +58,31 @@ namespace SpriteSpark {
 
 	void Application::Run() {
         // Start Initialize
-
-        std::vector<std::unique_ptr<VulkanBuffer>> globalUniformBuffers(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < globalUniformBuffers.size(); i++) {
-            globalUniformBuffers[i] = std::make_unique<VulkanBuffer>(
-                m_Device,
-                sizeof(GlobalUniformBuffer),
-                1,
-                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-            );
-            globalUniformBuffers[i]->map();
-        }
-
-        auto globalSetLayout = VulkanDescriptorSetLayout::Builder(m_Device)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .build();
-
-        VulkanTexture texture = VulkanTexture(m_Device, "Textures/dk_ts_woodlandbiom.png");
-
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.sampler = texture.getSampler();
-        imageInfo.imageView = texture.getImageView();
-        imageInfo.imageLayout = texture.getImageLayout();
-
-        std::vector<VkDescriptorSet> globalDescriptorSets(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < globalDescriptorSets.size(); i++) {
-            auto bufferInfo = globalUniformBuffers[i]->descriptorInfo();
-            VulkanDescriptorWriter(*globalSetLayout, *m_GlobalDescriptorPool)
-                .writeBuffer(0, &bufferInfo)
-                .writeImage(1, &imageInfo)
-                .build(globalDescriptorSets[i]);
-        }
-
-        RenderSystem renderSystem{ m_Device, m_Renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+        RenderSystem renderSystem;
         Camera camera{};
+
+        for (Layer* layer : m_LayerStack) {
+            layer->OnInit();
+        }
 
         auto previousTime = std::chrono::high_resolution_clock::now();
 
         // End Initialize
 
-        while (!m_Window.ShouldClose()) {
+        while (!m_GlobalLoader.getWindow().ShouldClose()) {
             // Start Update
-
-            m_Window.OnUpdate();
+            m_GlobalLoader.getWindow().OnUpdate();
             GlobalEventDispatcher::Get().updateEvents();
 
             auto currentTime = std::chrono::high_resolution_clock::now();
-            double frameTime = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - previousTime).count();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - previousTime).count();
             previousTime = currentTime;
 
-            float aspect = m_Renderer.getAspectRatio();
+            float aspect = m_GlobalLoader.getRenderer().getAspectRatio();
             camera.setOrthographicProjection(-aspect, aspect, -1.0f, 1.0f);
 
             while (frameTime > 0.0f) {
-                double deltaTime = std::max(frameTime, 1.0/120.0);
+                float deltaTime = std::max(frameTime, 1.0f / 120.0f);
 
                 for (Layer* layer : m_LayerStack) {
                     layer->OnUpdate(deltaTime, camera, m_GameObjects);
@@ -131,42 +93,47 @@ namespace SpriteSpark {
             // End Update
 
             // Start Rendering
-            if (auto m_CommandBuffer = m_Renderer.beginFrame()) {
-                int frameIndex = m_Renderer.getFrameIndex();
-                FrameInfo frameInfo{ frameIndex, frameTime, m_CommandBuffer, camera, globalDescriptorSets[frameIndex] };
+            if (auto m_CommandBuffer = m_GlobalLoader.getRenderer().beginFrame()) {
+                int frameIndex = m_GlobalLoader.getRenderer().getFrameIndex();
+
+                FrameInfo frameInfo{ frameIndex, frameTime, m_CommandBuffer, camera, m_GlobalLoader.getGlobalDescriptorSets()[frameIndex], m_GlobalLoader.getGlobalSetLayout(), m_GlobalLoader.getGlobalDescriptorPool(), m_GlobalLoader.getGlobalUniformBuffers() };
 
                 // Updating buffers
                 GlobalUniformBuffer ubo{};
                 ubo.projectionMatrix = camera.getProjectionMatrix() * camera.getViewMatrix();
-                globalUniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                m_GlobalLoader.getGlobalUniformBuffers()[frameIndex]->writeToBuffer(&ubo);
 
                 // Rendering frame
-                m_Renderer.beginSwapChainRenderPass(m_CommandBuffer);
+                m_GlobalLoader.getRenderer().beginSwapChainRenderPass(m_CommandBuffer);
 
                 for (Layer* layer : m_LayerStack) {
                     layer->OnRender(renderSystem, frameInfo, m_GameObjects);
                 }
 
-                m_Renderer.endSwapChainRenderPass(m_CommandBuffer);
-                m_Renderer.endFrame();
+                m_GlobalLoader.getRenderer().endSwapChainRenderPass(m_CommandBuffer);
+                m_GlobalLoader.getRenderer().endFrame(frameInfo);
             }
             // End Rendering
 
             Input::Clear();
 		}
 
-        vkDeviceWaitIdle(m_Device.device());
+        vkDeviceWaitIdle(m_GlobalLoader.getDevice().device());
 
 	}
 
-    void Application::loadGameObjects(float r, float g, float b, float a) {
+    void Application::loadGameObjects(float r, float g, float b, float a, std::string& texturePath) {
         VulkanModel::Data modelData{};
 
-        int textureSize = 512;
-        Rect spriteRect(64, 0, 16, 16);
+        auto gameObj = GameObject::createGameObject();
+        gameObj.color = { r, g, b, a };
+        gameObj.texture = m_GlobalLoader.LoadTexture(texturePath);
+
+        float textureSize = static_cast<float>(gameObj.texture->getHeight());
+        Rect spriteRect(0, 0, textureSize, textureSize);
 
         float u_min, v_min, u_max, v_max;
-        spriteRect.getUVs(u_min, v_min, u_max, v_max, textureSize);
+        spriteRect.getUVs(u_min, v_min, u_max, v_max, static_cast<float>(gameObj.texture->getWidth()), static_cast<float>(gameObj.texture->getHeight()));
 
         modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_max } });     // Left/Bottom
         modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_min } });    // Left/Top
@@ -175,12 +142,9 @@ namespace SpriteSpark {
 
         modelData.indices = {0, 1, 2, 1, 2, 3};
 
-        auto m_Model = std::make_shared<VulkanModel>(m_Device, modelData);
-        auto gameObj = GameObject::createGameObject();
+        auto m_Model = std::make_shared<VulkanModel>(m_GlobalLoader.getDevice(), modelData);
         gameObj.model = m_Model;
-        gameObj.color = { r, g, b, a };
 
         m_GameObjects.push_back(std::move(gameObj));
     }
-
 }

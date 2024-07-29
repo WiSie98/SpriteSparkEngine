@@ -17,9 +17,12 @@ namespace SpriteSpark {
 		VulkanTexture(VulkanTexture&&) = delete;
 		VulkanTexture& operator=(VulkanTexture&&) = delete;
 
-		VkSampler getSampler() { return m_Sampler; }
-		VkImageView getImageView() { return m_ImageView; }
-		VkImageLayout getImageLayout() { return m_ImageLayout; }
+		VkSampler getSampler() const { return m_Sampler; }
+		VkImageView getImageView() const { return m_ImageView; }
+		VkImageLayout getImageLayout() const { return m_ImageLayout; }
+
+		int getWidth() { return m_Width; };
+		int getHeight() { return m_Height; };
 
 	private:
 

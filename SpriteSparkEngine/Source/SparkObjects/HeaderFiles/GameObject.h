@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform/Vulkan/HeaderFiles/VulkanModel.h"
+#include "Platform/Vulkan/HeaderFiles/VulkanTexture.h"
 
 namespace SpriteSpark {
 
@@ -40,6 +41,7 @@ namespace SpriteSpark {
 		std::shared_ptr<VulkanModel> model;
 		glm::vec4 color{};
 		Transform2dComponent transform2d{};
+		std::unique_ptr<VulkanTexture> texture;
 
 	private:
 		

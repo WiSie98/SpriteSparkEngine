@@ -223,6 +223,18 @@ Notes
   to differences in corrupted stream recorvery logic between the two APIs.
 */
 
+#pragma warning(push, 0) // Disable all warnings
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall" // Disable all common warnings
+#pragma GCC diagnostic ignored "-Wextra" // Disable extra warnings
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic warnings
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall" // Disable all common warnings
+#pragma clang diagnostic ignored "-Wextra" // Disable extra warnings
+#pragma clang diagnostic ignored "-Wpedantic" // Disable pedantic warnings
+
 #ifndef dr_flac_h
 #define dr_flac_h
 
@@ -12259,6 +12271,9 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
 #endif  /* dr_flac_c */
 #endif  /* DR_FLAC_IMPLEMENTATION */
 
+#pragma GCC diagnostic pop
+#pragma clang diagnostic pop
+#pragma warning(pop)
 
 /*
 REVISION HISTORY
