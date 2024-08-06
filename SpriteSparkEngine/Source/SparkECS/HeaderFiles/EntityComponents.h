@@ -1,15 +1,16 @@
 #pragma once
 
 #include "SparkCore/HeaderFiles/GlobalLoader.h"
+#include "SparkCore/HeaderFiles/Sound.h"
 
 namespace SpriteSpark {
 
-	struct Position {
+	struct Direction {
 		float x = 0, y = 0;
 	};
 
-	struct Direction {
-		float x = 0, y = 0;
+	struct Velocity {
+		float velocity;
 	};
 
 	struct Transform {
@@ -31,6 +32,10 @@ namespace SpriteSpark {
 		glm::vec4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
 	};
 
+	struct Collision {
+		Rect box;
+	};
+
 	struct Sprite {
 
 		Sprite(const Sprite&) = delete;
@@ -38,43 +43,37 @@ namespace SpriteSpark {
 		Sprite(Sprite&&) = default;
 		Sprite& operator=(Sprite&&) = default;
 
-		Sprite(std::string& filePath, Rect rect) {
+		Sprite(std::unique_ptr<VulkanTexture>& texture, Rect rect) : texture(texture) {
 			VulkanModel::Data modelData{};
 
-			texture = GlobalLoader::Get().LoadTexture(filePath);
 			spriteRect = rect;
-
-			float textureSize = static_cast<float>(texture->getHeight());
 
 			float u_min, v_min, u_max, v_max;
 			spriteRect.getUVs(u_min, v_min, u_max, v_max, static_cast<float>(texture->getWidth()), static_cast<float>(texture->getHeight()));
 
-			modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_max } });     // Left/Bottom
-			modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_min } });    // Left/Top
-			modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_max } });    // Right/Bottom
-			modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_min } });   // Right/Top
+			modelData.vertices.push_back({ { 0.0f, spriteRect.height }, {}, {u_min, v_max}});					// Left/Bottom
+			modelData.vertices.push_back({ { 0.0f, 0.0f }, {}, { u_min, v_min } });								// Left/Top
+			modelData.vertices.push_back({ { spriteRect.width, spriteRect.height }, {}, { u_max, v_max } });	// Right/Bottom
+			modelData.vertices.push_back({ { spriteRect.width, 0.0f }, {}, { u_max, v_min } });					// Right/Top
 
 			modelData.indices = { 0, 1, 2, 1, 2, 3 };
 
 			model = std::make_shared<VulkanModel>(GlobalLoader::Get().getDevice(), modelData);
 		}
 
-		Sprite(std::string& filePath) {
+		Sprite(std::unique_ptr<VulkanTexture>& texture) : texture(texture) {
 			VulkanModel::Data modelData{};
 
-			texture = GlobalLoader::Get().LoadTexture(filePath);
-
-			float textureSize = static_cast<float>(texture->getHeight());
-			spriteRect.width = textureSize;
-			spriteRect.height = textureSize;
+			spriteRect.width = static_cast<float>(texture->getWidth());
+			spriteRect.height = static_cast<float>(texture->getHeight());
 
 			float u_min, v_min, u_max, v_max;
 			spriteRect.getUVs(u_min, v_min, u_max, v_max, static_cast<float>(texture->getWidth()), static_cast<float>(texture->getHeight()));
 
-			modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_max } });     // Left/Bottom
-			modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_min } });    // Left/Top
-			modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_max } });    // Right/Bottom
-			modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_min } });   // Right/Top
+			modelData.vertices.push_back({ { 0.0f, static_cast<float>(texture->getHeight()) }, {}, { u_min, v_max } });											// Left/Bottom
+			modelData.vertices.push_back({ { 0.0f, 0.0f }, {}, { u_min, v_min } });																				// Left/Top
+			modelData.vertices.push_back({ { static_cast<float>(texture->getWidth()), static_cast<float>(texture->getHeight()) }, {}, { u_max, v_max } });		// Right/Bottom
+			modelData.vertices.push_back({ { static_cast<float>(texture->getWidth()), 0.0f }, {}, { u_max, v_min } });											// Right/Top
 
 			modelData.indices = { 0, 1, 2, 1, 2, 3 };
 
@@ -82,7 +81,7 @@ namespace SpriteSpark {
 		}
 
 		std::shared_ptr<VulkanModel> model;
-		std::unique_ptr<VulkanTexture> texture;
+		std::unique_ptr<VulkanTexture>& texture;
 		Rect spriteRect;
 	};
 

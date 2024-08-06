@@ -9,6 +9,7 @@ namespace SpriteSpark {
 
 	public:
 
+		VulkanTexture() = default;
 		VulkanTexture(VulkanDevice& device, const std::string& filepath);
 		~VulkanTexture();
 

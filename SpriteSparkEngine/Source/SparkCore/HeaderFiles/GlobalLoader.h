@@ -10,7 +10,10 @@
 #include "Platform/Vulkan/HeaderFiles/VulkanSwapChain.h"
 
 #include "SparkCore/HeaderFiles/Renderer.h"
+#include "SparkCore/HeaderFiles/Core.h"
 #include "SparkCore/HeaderFiles/FrameInfo.h"
+
+#include "SparkECS/HeaderFiles/EntityManager.h"
 
 namespace SpriteSpark {
 
@@ -35,7 +38,10 @@ namespace SpriteSpark {
 		std::vector<VkDescriptorSet>& getGlobalDescriptorSets() { return m_GlobalDescriptorSets; }
 		std::shared_ptr<VulkanDescriptorSetLayout>& getGlobalSetLayout() { return m_GlobalSetLayout; }
 
-		std::unique_ptr<VulkanTexture> LoadTexture(const std::string& texturePath);
+		static std::unique_ptr<VulkanTexture> LoadTexture(const std::string& texturePath);
+		static void UnloadTexture(std::unique_ptr<VulkanTexture>& texture);
+
+		static void LoadSprites(EntityManager& entityManager, std::unique_ptr<VulkanTexture>& texture, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath);
 
 	private:
 

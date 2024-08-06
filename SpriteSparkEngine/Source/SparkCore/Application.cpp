@@ -18,12 +18,6 @@ namespace SpriteSpark {
 
         //m_Window = std::unique_ptr<Window>(Window::Create());
 
-        std::string filePath1 = "Textures/dk_ts_woodlandbiom.png";
-        std::string filePath2 = "Textures/Test.png";
-
-        loadGameObjects(1.0f, 1.0f, 1.0f, 1.0f, filePath1);
-        loadGameObjects(1.0f, 1.0f, 1.0f, 1.0f, filePath2);
-
         GlobalEventDispatcher::Get().registerListener<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
         GlobalEventDispatcher::Get().registerListener<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
         SP_CORE_TRACE("Application initializatized successfully!");
@@ -58,11 +52,10 @@ namespace SpriteSpark {
 
 	void Application::Run() {
         // Start Initialize
-        RenderSystem renderSystem;
         Camera camera{};
 
         for (Layer* layer : m_LayerStack) {
-            layer->OnInit();
+            layer->OnInit(camera);
         }
 
         auto previousTime = std::chrono::high_resolution_clock::now();
@@ -85,7 +78,7 @@ namespace SpriteSpark {
                 float deltaTime = std::max(frameTime, 1.0f / 120.0f);
 
                 for (Layer* layer : m_LayerStack) {
-                    layer->OnUpdate(deltaTime, camera, m_GameObjects);
+                    layer->OnUpdate(deltaTime, camera);
                 }
 
                 frameTime -= deltaTime;
@@ -107,7 +100,7 @@ namespace SpriteSpark {
                 m_GlobalLoader.getRenderer().beginSwapChainRenderPass(m_CommandBuffer);
 
                 for (Layer* layer : m_LayerStack) {
-                    layer->OnRender(renderSystem, frameInfo, m_GameObjects);
+                    layer->OnRender(frameInfo);
                 }
 
                 m_GlobalLoader.getRenderer().endSwapChainRenderPass(m_CommandBuffer);
@@ -121,30 +114,4 @@ namespace SpriteSpark {
         vkDeviceWaitIdle(m_GlobalLoader.getDevice().device());
 
 	}
-
-    void Application::loadGameObjects(float r, float g, float b, float a, std::string& texturePath) {
-        VulkanModel::Data modelData{};
-
-        auto gameObj = GameObject::createGameObject();
-        gameObj.color = { r, g, b, a };
-        gameObj.texture = m_GlobalLoader.LoadTexture(texturePath);
-
-        float textureSize = static_cast<float>(gameObj.texture->getHeight());
-        Rect spriteRect(0, 0, textureSize, textureSize);
-
-        float u_min, v_min, u_max, v_max;
-        spriteRect.getUVs(u_min, v_min, u_max, v_max, static_cast<float>(gameObj.texture->getWidth()), static_cast<float>(gameObj.texture->getHeight()));
-
-        modelData.vertices.push_back({ { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_max } });     // Left/Bottom
-        modelData.vertices.push_back({ { 0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_min, v_min } });    // Left/Top
-        modelData.vertices.push_back({ { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_max } });    // Right/Bottom
-        modelData.vertices.push_back({ { -0.5f, -0.5f }, { 0.0f, 0.0f, 1.0f }, { u_max, v_min } });   // Right/Top
-
-        modelData.indices = {0, 1, 2, 1, 2, 3};
-
-        auto m_Model = std::make_shared<VulkanModel>(m_GlobalLoader.getDevice(), modelData);
-        gameObj.model = m_Model;
-
-        m_GameObjects.push_back(std::move(gameObj));
-    }
 }

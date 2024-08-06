@@ -42,15 +42,11 @@ namespace SpriteSpark {
 
 		GlobalLoader& m_GlobalLoader = GlobalLoader::Get();
 
-		std::vector<GameObject> m_GameObjects;
-
 		static Application* s_Instance;
 
 		void OnEvent(const Event& e);
 		bool OnWindowResize(const WindowResizeEvent& e);
 		bool OnWindowClose(const WindowCloseEvent& e);
-
-		void loadGameObjects(float r, float g, float b, float a, std::string& texturePath);
 
 	};
 

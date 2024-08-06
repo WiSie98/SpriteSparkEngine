@@ -4,12 +4,16 @@
 
 #include "SparkCore/HeaderFiles/GlobalLoader.h"
 
+#include "SparkECS/HeaderFiles/EntityComponents.h"
+
+#include "External/json.h"
+
 namespace SpriteSpark {
 
     GlobalLoader::GlobalLoader() {
         SP_CORE_TRACE("Initializing Vulkan window");
         m_GlobalDescriptorPool = VulkanDescriptorPool::Builder(m_Device)
-            .setMaxSets(1000)
+            .setMaxSets(10000)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
             .build();
@@ -45,7 +49,7 @@ namespace SpriteSpark {
             .build();
 
         m_GlobalDescriptorPool = VulkanDescriptorPool::Builder(m_Device)
-            .setMaxSets(2000)
+            .setMaxSets(20000)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2000)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2000)
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
@@ -65,7 +69,7 @@ namespace SpriteSpark {
 
 	std::unique_ptr<VulkanTexture> GlobalLoader::LoadTexture(const std::string& texturePath) {
         try {
-            auto texture = std::make_unique<SpriteSpark::VulkanTexture>(m_Device, texturePath);
+            auto texture = std::make_unique<SpriteSpark::VulkanTexture>(GlobalLoader::Get().getDevice(), texturePath);
 
             VkDescriptorImageInfo imageInfo{};
             imageInfo.sampler = texture->getSampler();
@@ -73,10 +77,10 @@ namespace SpriteSpark {
             imageInfo.imageLayout = texture->getImageLayout();
 
             for (int i = 0; i < VulkanSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-                VulkanDescriptorWriter writer(*m_GlobalSetLayout, *m_GlobalDescriptorPool);
+                VulkanDescriptorWriter writer(*GlobalLoader::Get().getGlobalSetLayout(), *GlobalLoader::Get().getGlobalDescriptorPool());
                 writer.writeImage(1, &imageInfo);
 
-                writer.overwrite(m_GlobalDescriptorSets[i]);
+                writer.overwrite(GlobalLoader::Get().getGlobalDescriptorSets()[i]);
             }
             SP_CORE_INFO("texture loaded successfully from: ", texturePath);
             return texture;
@@ -86,5 +90,59 @@ namespace SpriteSpark {
             throw;
         }
 	}
+
+    void GlobalLoader::UnloadTexture(std::unique_ptr<VulkanTexture>& texture) {
+        texture.reset();
+    }
+
+    void GlobalLoader::LoadSprites(EntityManager& entityManager, std::unique_ptr<VulkanTexture>& texture, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath) {
+        //Loading the tileset description file.
+        std::ifstream tileset_description_file(tilesetDescriptionFilepath);
+        nlohmann::json tileset_description = nlohmann::json::parse(tileset_description_file);
+        tileset_description_file.close();
+
+        //Loading the level file.
+        std::ifstream level_map_file(tilesetMapFilepath);
+        nlohmann::json level_map = nlohmann::json::parse(level_map_file);
+        level_map_file.close();
+
+        glm::vec2 vec = { 0, 0 };
+        Rect rec = { 0, 0, level_map["tilewidth"], level_map["tileheight"] };
+
+        for (auto const& layer : level_map["layers"]) {
+            if (layer["type"] == "tilelayer" && layer["visible"]) {
+                for (auto const& tileId : layer["data"]) {
+                    if (layer["id"] < 3) {
+                        if (tileId != 0) {
+                            rec.x = static_cast<float>(((static_cast<int>(tileId) - 1) % static_cast<int>(tileset_description["columns"]))) * static_cast<float>(level_map["tilewidth"]);
+                            rec.y = static_cast<float>(floor(static_cast<float>(tileId) / static_cast<float>(tileset_description["columns"]))) * static_cast<float>(level_map["tilewidth"]);
+
+                            if (static_cast<int>(tileId) % 20 == 0) {
+                                rec.y -= 16;
+                            }
+
+                            Entity entity = entityManager.createEntity();
+
+                            entityManager.addComponent(entity, Transform{ vec, {1.0f, 1.0f}, 0.0f });
+                            entityManager.addComponent(entity, Sprite(texture, rec));
+                        }
+                    }
+                    else {
+                        return;
+                    }
+
+                    vec.x += static_cast<float>(level_map["tilewidth"]);
+                    if (vec.x >= static_cast<float>(layer["width"]) * static_cast<float>(level_map["tilewidth"])) {
+                        vec.x = 0;
+                        vec.y += static_cast<float>(level_map["tileheight"]);
+                    }
+                    if (vec.y >= static_cast<float>(layer["height"]) * static_cast<float>(level_map["tileheight"])) {
+                        vec.y = 0;
+                    }
+                }
+            }
+
+        }
+    }
 
 }

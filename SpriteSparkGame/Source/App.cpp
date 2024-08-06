@@ -8,23 +8,19 @@ public:
 
     TestLayer() : Layer("Test") {}
 
-    void OnInit() override {
+    void OnInit(Camera& camera) override {
         sound.setFilepath("Sound/Overworld Theme - Super Mario World.mp3");
 
-        Entity entity1 = entityManager.createEntity();
-        Entity entity2 = entityManager.createEntity();
+        GlobalLoader::LoadSprites(entityManager, tilemap, "Levels/vp_ts_metroidlevel.json", "Levels/vp_lv_metroidlevel.json");
 
-        std::string file = "Textures/Test.png";
+        Entity player = entityManager.createEntity();
 
-        entityManager.addComponent(entity1, Position{ 0, 0 });
-        entityManager.addComponent(entity1, Direction{ 1, 1 });
-        entityManager.addComponent(entity1, Transform{ {1.0f, 1.0f}, {1.0f, 1.0f}, 0.0f });
-        entityManager.addComponent(entity1, Sprite(file, {0, 0, 16, 16}));
-        entityManager.addComponent(entity2, Position{ 0, 0 });
-        entityManager.addComponent(entity2, Direction{ -1, -1 });
+        entityManager.addComponent(player, Transform{ {0.0f, 0.0f}, {1.0f, 1.0f}, 0.0f });
+        entityManager.addComponent(player, Velocity{ 100.0f });
+        entityManager.addComponent(player, Sprite{ playertiles, {0.0f, 0.0f, 16.0f, 32.0f} });
     }
 
-    void OnUpdate(float deltaTime, Camera& camera, std::vector<GameObject>& gameObjects) override {
+    void OnUpdate(float deltaTime, Camera& camera) override {
 
         // Sound Test Start
         if (Input::IsKeyPressed(Key::H)) {
@@ -42,75 +38,35 @@ public:
         if (Input::IsKeyPressed(Key::P)) {
             sound.pause();
         }
+
         // Sound Test End
-        // Test Code Start
-        if (gameObjects[0].transform2d.translation.x > 2) {
-            spriteVelocity = -0.05f;
-        }
-        else if (gameObjects[0].transform2d.translation.x < -2) {
-            spriteVelocity = 0.05f;
-        }
-
-        gameObjects[0].transform2d.translation.x += spriteVelocity * deltaTime;
-        gameObjects[0].transform2d.rotation += 0.05f * deltaTime;
-
-        if (gameObjects[1].transform2d.translation.x > 2) {
-            spriteVelocity1 = -0.05f;
-        }
-        else if (gameObjects[1].transform2d.translation.x < -2) {
-            spriteVelocity1 = 0.05f;
-        }
-
-        gameObjects[1].transform2d.translation.x += spriteVelocity1 * deltaTime;
-        gameObjects[1].transform2d.rotation += 0.05f * deltaTime;
-
-        // Camera test
-        if (Input::IsKeyPressed(Key::W)) {
-            camera.setPosition({ camera.getPosition().x, camera.getPosition().y - cameraVelocity * deltaTime, 0.0f });
-        }
-        else if (Input::IsKeyPressed(Key::S)) {
-            camera.setPosition({ camera.getPosition().x, camera.getPosition().y + cameraVelocity * deltaTime, 0.0f });
-        }
-        else if (Input::IsKeyPressed(Key::A)) {
-            camera.setPosition({ camera.getPosition().x - cameraVelocity * deltaTime, camera.getPosition().y, 0.0f });
-        }
-        else if (Input::IsKeyPressed(Key::D)) {
-            camera.setPosition({ camera.getPosition().x + cameraVelocity * deltaTime, camera.getPosition().y, 0.0f });
-        }
-
-        if (Input::IsKeyPressed(Key::Q)) {
-            camera.setZoom(camera.getZoom() + cameraVelocity * deltaTime);
-        }
-        else if (Input::IsKeyPressed(Key::E)) {
-            camera.setZoom(camera.getZoom() - cameraVelocity * deltaTime);
-        }
-        // Test Code End
 
         // ECS Test Start
-        movementSystem.update(entityManager, deltaTime);
+        movementSystem.update(entityManager, camera, deltaTime);
 
-        //Position* pos1 = entityManager.getComponent<Position>(entityManager.getEntityById(0));
-        //Position* pos2 = entityManager.getComponent<Position>(entityManager.getEntityById(1));
+        //Sprite* spr1 = entityManager.getComponent<Sprite>(entityManager.getEntityById(0));
+        //Sprite* spr2 = entityManager.getComponent<Sprite>(entityManager.getEntityById(1));
 
-        //SP_TRACE("Entity 1 Position: (", pos1->x, ", ", pos1->y, ")");
-        //SP_TRACE("Entity 2 Position: (", pos2->x, ", ", pos2->y, ")");
+        //SP_TRACE("Entity 1 TextureSize: (", spr1->texture->getHeight(), ", ", spr1->texture->getWidth(), ")");
+        //SP_TRACE("Entity 2 TextureSize: (", spr2->texture->getHeight(), ", ", spr2->texture->getWidth(), ")");
         // ECS Test End
 
     }
 
-    void OnRender(RenderSystem& renderSystem, FrameInfo& frameInfo, std::vector<GameObject>& gameObjects) override {
-        renderSystem.renderGameObjects(frameInfo, gameObjects);
+    void OnRender(FrameInfo& frameInfo) override {
+        spriteSystem.render(frameInfo, entityManager);
     }
 
-    float cameraVelocity = 0.5f;
-    float spriteVelocity = 0.05f;
-    float spriteVelocity1 = -0.05f;
+    float cameraVelocity = 500.0f;
 
+    std::unique_ptr<VulkanTexture> tilemap = GlobalLoader::LoadTexture("Textures/vp_ts_metroidlevel.png");
+    std::unique_ptr<VulkanTexture> playertiles = GlobalLoader::LoadTexture("Textures/vp_sptsht_player.png");
     Sound sound;
     float volume = 1.0f;
 
     EntityManager entityManager;
-    MovementSystem movementSystem;
+    PlayerMovementSystem movementSystem;
+    SpriteSystem spriteSystem;
 
 };
 
@@ -121,7 +77,7 @@ public:
         PushLayer(new TestLayer());
     }
 
-    ~TestApp() { }
+    ~TestApp() {}
 };
 
 SpriteSpark::Application* SpriteSpark::CreateApplication() {

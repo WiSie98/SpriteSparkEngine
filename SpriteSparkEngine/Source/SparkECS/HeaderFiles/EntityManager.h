@@ -52,15 +52,19 @@ public:
             id = m_NextId++;
         }
         Entity entity(id);
-        m_Entities.insert(entity);
+        m_Entities.push_back(entity);
         return entity;
     }
 
     Entity getEntityById(std::uint64_t id) {
-        auto it = m_Entities.find(Entity(id));
+        auto it = std::find_if(m_Entities.begin(), m_Entities.end(), [&](const Entity& e) {
+            return e.id == id;
+            });
+
         if (it != m_Entities.end()) {
             return *it;
         }
+
         throw std::runtime_error("Entity not found!");
     }
 
@@ -69,7 +73,14 @@ public:
     }
 
     void deleteEntityById(std::uint64_t id) {
-        m_Entities.erase(Entity(id));
+        auto it = std::find_if(m_Entities.begin(), m_Entities.end(), [&](const Entity& e) {
+            return e.id == id;
+            });
+
+        if (it != m_Entities.end()) {
+            m_Entities.erase(it);
+        }
+
         m_RecycledIds.push_back(id);
 
         // Remove associated components
@@ -112,10 +123,20 @@ public:
         }
     }
 
+    template <typename... Components, typename Func>
+    void eachReverse(Func func) {
+        for (auto it = m_Entities.rbegin(); it != m_Entities.rend(); ++it) {
+            const auto& entity = *it;
+            if (hasComponentsById<Components...>(entity.id)) {
+                func(entity, *getComponentById<Components>(entity.id)...);
+            }
+        }
+    }
+
 private:
 
     std::uint64_t m_NextId = 0;
-    std::unordered_set<Entity> m_Entities;
+    std::vector<Entity> m_Entities;
     std::vector<std::uint64_t> m_RecycledIds;
     std::unordered_map<std::size_t, std::vector<std::shared_ptr<IComponent>>> m_Components;
 

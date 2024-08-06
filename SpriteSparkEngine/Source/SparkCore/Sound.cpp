@@ -25,7 +25,7 @@ namespace SpriteSpark {
         SP_CORE_TRACE("Loading audio file");
 
         if (loadSound(filepath)) {
-            SP_CORE_TRACE("Audio file loaded successfully!");
+            SP_CORE_INFO("Audio loaded successfully from: ", filepath);
             m_IsBufferLoaded = true;
         } else {
             std::cerr << "Failed to load audio file: " << filepath << std::endl;
@@ -197,7 +197,7 @@ namespace SpriteSpark {
         }
 
         if (loadSound(filepath)) {
-            SP_CORE_TRACE("Sound file loaded successfully!");
+            SP_CORE_INFO("Audio loaded successfully from: ", filepath);
         } else {
             std::cerr << "Failed to load sound file: " << filepath << std::endl;
         }

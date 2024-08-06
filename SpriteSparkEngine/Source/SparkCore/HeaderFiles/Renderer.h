@@ -23,6 +23,8 @@ namespace SpriteSpark {
 
 		VkRenderPass getSwapChainRenderPass() const { return m_SwapChain->getRenderPass(); }
 		float getAspectRatio() const { return m_SwapChain->extentAspectRatio(); }
+		float getWindowWidth() const { return static_cast<float>(m_SwapChain->getSwapChainExtent().width); }
+		float getWindowHeight() const { return static_cast<float>(m_SwapChain->getSwapChainExtent().height); }
 		bool isFrameInProgress() const { return m_IsFrameStarted; }
 
 		VkCommandBuffer getCurrentCommandBuffer() const {

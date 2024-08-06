@@ -47,6 +47,7 @@
 #include "SparkECS/HeaderFiles/EntityComponents.h"
 #include "SparkECS/HeaderFiles/EntityManager.h"
 #include "SparkECS/HeaderFiles/EntitySystems.h"
+#include "SparkECS/HeaderFiles/SpriteSystem.h"
 // -----------------------------------------------
 
 // -----------------SparkObjects------------------

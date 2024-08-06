@@ -17,9 +17,9 @@ namespace SpriteSpark {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnInit() {}
-		virtual void OnUpdate(float deltaTime, Camera& camera, std::vector<GameObject>& gameObjects) {}
-		virtual void OnRender(RenderSystem& renderSystem, FrameInfo& frameInfo, std::vector<GameObject>& gameObjects) {}
+		virtual void OnInit(Camera& camera) {}
+		virtual void OnUpdate(float deltaTime, Camera& camera) {}
+		virtual void OnRender(FrameInfo& frameInfo) {}
 
 		inline const std::string& GetName() const { return m_DebugName; }
 
