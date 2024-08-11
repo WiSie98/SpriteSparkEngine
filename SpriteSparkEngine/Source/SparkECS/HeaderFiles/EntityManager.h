@@ -35,7 +35,6 @@ class Component : public IComponent {
 public:
     T data;
 
-    // Perfect forwarding constructor
     template <typename U>
     Component(U&& componentData) : data(std::forward<U>(componentData)) {}
 };
@@ -83,7 +82,6 @@ public:
 
         m_RecycledIds.push_back(id);
 
-        // Remove associated components
         for (auto& [typeHash, componentVector] : m_Components) {
             if (id < componentVector.size()) {
                 componentVector[id].reset();

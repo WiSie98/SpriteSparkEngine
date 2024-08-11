@@ -95,7 +95,7 @@ namespace SpriteSpark {
         texture.reset();
     }
 
-    void GlobalLoader::LoadSprites(EntityManager& entityManager, std::unique_ptr<VulkanTexture>& texture, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath) {
+    void GlobalLoader::LoadSprites(EntityManager& entityManager, int layers, std::unique_ptr<VulkanTexture>& texture, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath) {
         //Loading the tileset description file.
         std::ifstream tileset_description_file(tilesetDescriptionFilepath);
         nlohmann::json tileset_description = nlohmann::json::parse(tileset_description_file);
@@ -112,7 +112,7 @@ namespace SpriteSpark {
         for (auto const& layer : level_map["layers"]) {
             if (layer["type"] == "tilelayer" && layer["visible"]) {
                 for (auto const& tileId : layer["data"]) {
-                    if (layer["id"] < 3) {
+                    if (layer["id"] < layers) {
                         if (tileId != 0) {
                             rec.x = static_cast<float>(((static_cast<int>(tileId) - 1) % static_cast<int>(tileset_description["columns"]))) * static_cast<float>(level_map["tilewidth"]);
                             rec.y = static_cast<float>(floor(static_cast<float>(tileId) / static_cast<float>(tileset_description["columns"]))) * static_cast<float>(level_map["tilewidth"]);
@@ -129,6 +129,43 @@ namespace SpriteSpark {
                     }
                     else {
                         return;
+                    }
+
+                    vec.x += static_cast<float>(level_map["tilewidth"]);
+                    if (vec.x >= static_cast<float>(layer["width"]) * static_cast<float>(level_map["tilewidth"])) {
+                        vec.x = 0;
+                        vec.y += static_cast<float>(level_map["tileheight"]);
+                    }
+                    if (vec.y >= static_cast<float>(layer["height"]) * static_cast<float>(level_map["tileheight"])) {
+                        vec.y = 0;
+                    }
+                }
+            }
+
+        }
+    }
+
+    void GlobalLoader::LoadCollider(EntityManager& entityManager, int layers, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath) {
+        std::ifstream tileset_description_file(tilesetDescriptionFilepath);
+        nlohmann::json tileset_description = nlohmann::json::parse(tileset_description_file);
+        tileset_description_file.close();
+
+        //Loading the level file.
+        std::ifstream level_map_file(tilesetMapFilepath);
+        nlohmann::json level_map = nlohmann::json::parse(level_map_file);
+        level_map_file.close();
+        
+        glm::vec2 vec = { 0, 0 };
+        Rect rec = { 0, 0, level_map["tilewidth"], level_map["tileheight"] };
+
+        for (auto const& layer : level_map["layers"]) {
+            if (layer["type"] == "tilelayer" && layer["id"] == layers) {
+                for (auto const& tileId : layer["data"]) {
+                    if (tileId != 0) {
+                        Entity entity = entityManager.createEntity();
+
+                        entityManager.addComponent(entity, Transform{ vec, {1.0f, 1.0f}, 0.0f });
+                        entityManager.addComponent(entity, Collision{ 0.0f, 0.0f, 16.0f, 16.0f, CollisionType::STATIC });
                     }
 
                     vec.x += static_cast<float>(level_map["tilewidth"]);

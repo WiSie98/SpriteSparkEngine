@@ -41,7 +41,8 @@ namespace SpriteSpark {
 		static std::unique_ptr<VulkanTexture> LoadTexture(const std::string& texturePath);
 		static void UnloadTexture(std::unique_ptr<VulkanTexture>& texture);
 
-		static void LoadSprites(EntityManager& entityManager, std::unique_ptr<VulkanTexture>& texture, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath);
+		static void LoadSprites(EntityManager& entityManager, int layer, std::unique_ptr<VulkanTexture>& texture, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath);
+		static void LoadCollider(EntityManager& entityManager, int layers, const std::string& tilesetDescriptionFilepath, const std::string& tilesetMapFilepath);
 
 	private:
 

@@ -5,12 +5,29 @@
 
 namespace SpriteSpark {
 
-	struct Direction {
-		float x = 0, y = 0;
+	enum class CollisionType {
+		STATIC,
+		DYNAMIC,
+		TRIGGER
 	};
 
-	struct Velocity {
-		float velocity;
+	struct Player {
+		bool isOnGround = false;
+		int lives = 1;
+		int score = 0;
+
+		Player(int lives = 1, int score = 0) : isOnGround(false), lives(lives), score(score) {}
+	};
+
+	struct RigidBody {
+		glm::vec2 velocity{ 0.0f, 0.0f };
+		glm::vec2 acceleration{ 10.0f, 0.0f };
+		float mass = 1.0f;
+		float drag = 0.5f;
+
+		RigidBody() = default;
+
+		RigidBody(const glm::vec2& velocity, const glm::vec2& acceleration, float mass, float drag)	: velocity(velocity), acceleration(acceleration), mass(mass), drag(drag) {}
 	};
 
 	struct Transform {
@@ -33,7 +50,16 @@ namespace SpriteSpark {
 	};
 
 	struct Collision {
+
+		Collision(float x, float y, float width, float height, CollisionType collisionType) : type(collisionType) {
+			box.x = x;
+			box.y = y;
+			box.width = width;
+			box.height = height;
+		}
+
 		Rect box;
+		CollisionType type;
 	};
 
 	struct Sprite {

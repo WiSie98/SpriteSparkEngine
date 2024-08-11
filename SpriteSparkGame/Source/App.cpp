@@ -9,46 +9,44 @@ public:
     TestLayer() : Layer("Test") {}
 
     void OnInit(Camera& camera) override {
-        sound.setFilepath("Sound/Overworld Theme - Super Mario World.mp3");
+        sound.setFilepath("Sound/Theme of Samus Aran, Space Warrior - Super Smash Bros. Ultimate.mp3");
 
-        GlobalLoader::LoadSprites(entityManager, tilemap, "Levels/vp_ts_metroidlevel.json", "Levels/vp_lv_metroidlevel.json");
+        GlobalLoader::LoadSprites(entityManager, 3, tilemap, "Levels/vp_ts_metroidlevel.json", "Levels/vp_lv_metroidlevel.json");
+        GlobalLoader::LoadCollider(entityManager, 3, "Levels/vp_ts_metroidlevel.json", "Levels/vp_lv_metroidlevel.json");
+        GlobalLoader::LoadCollider(entityManager, 4, "Levels/vp_ts_metroidlevel.json", "Levels/vp_lv_metroidlevel.json");
 
         Entity player = entityManager.createEntity();
 
-        entityManager.addComponent(player, Transform{ {0.0f, 0.0f}, {1.0f, 1.0f}, 0.0f });
-        entityManager.addComponent(player, Velocity{ 100.0f });
-        entityManager.addComponent(player, Sprite{ playertiles, {0.0f, 0.0f, 16.0f, 32.0f} });
+        entityManager.addComponent(player, Player{});
+        entityManager.addComponent(player, Transform{ {240.0f, 3194.0f}, {1.0f, 1.0f}, 0.0f });
+        entityManager.addComponent(player, RigidBody{});
+        entityManager.addComponent(player, Collision{ 0.0f, 0.0f, 16.0f, 32.0f, CollisionType::DYNAMIC });
+        entityManager.addComponent(player, Sprite{ playerSprite, {0.0f, 0.0f, 16.0f, 32.0f} });
+
+        sound.play(true);
+        sound.setVolume(volume);
     }
 
     void OnUpdate(float deltaTime, Camera& camera) override {
 
         // Sound Test Start
-        if (Input::IsKeyPressed(Key::H)) {
-            sound.play();
-        }
 
         if (Input::IsKeyPressed(Key::Up)) {
-            if (volume < 1.0f) volume += 0.0001f;
+            if (volume < 1.0f) volume = volume + 0.01f;
+            SP_APP_INFO("Lautstärke: ", volume);
             sound.setVolume(volume);
         } else if (Input::IsKeyPressed(Key::Down)) {
-            if (volume > 0.0f) volume -= 0.0001f;
+            if (volume > 0.0f) volume = volume - 0.01f;
+            SP_APP_INFO("Lautstärke: ", volume);
             sound.setVolume(volume);
-        }
-
-        if (Input::IsKeyPressed(Key::P)) {
-            sound.pause();
         }
 
         // Sound Test End
 
         // ECS Test Start
         movementSystem.update(entityManager, camera, deltaTime);
-
-        //Sprite* spr1 = entityManager.getComponent<Sprite>(entityManager.getEntityById(0));
-        //Sprite* spr2 = entityManager.getComponent<Sprite>(entityManager.getEntityById(1));
-
-        //SP_TRACE("Entity 1 TextureSize: (", spr1->texture->getHeight(), ", ", spr1->texture->getWidth(), ")");
-        //SP_TRACE("Entity 2 TextureSize: (", spr2->texture->getHeight(), ", ", spr2->texture->getWidth(), ")");
+        physicsSystem.update(entityManager, deltaTime);
+        collisionSystem.update(entityManager, deltaTime);
         // ECS Test End
 
     }
@@ -60,13 +58,15 @@ public:
     float cameraVelocity = 500.0f;
 
     std::unique_ptr<VulkanTexture> tilemap = GlobalLoader::LoadTexture("Textures/vp_ts_metroidlevel.png");
-    std::unique_ptr<VulkanTexture> playertiles = GlobalLoader::LoadTexture("Textures/vp_sptsht_player.png");
+    std::unique_ptr<VulkanTexture> playerSprite = GlobalLoader::LoadTexture("Textures/vp_sptsht_player.png");
     Sound sound;
-    float volume = 1.0f;
+    float volume = 0.5f;
 
     EntityManager entityManager;
     PlayerMovementSystem movementSystem;
     SpriteSystem spriteSystem;
+    CollisionSystem collisionSystem;
+    PhysicsSystem physicsSystem;
 
 };
 
