@@ -33,11 +33,11 @@ public:
 
         if (Input::IsKeyPressed(Key::Up)) {
             if (volume < 1.0f) volume = volume + 0.01f;
-            SP_APP_INFO("Lautstärke: ", volume);
+            SP_INFO("Lautstärke: ", volume);
             sound.setVolume(volume);
         } else if (Input::IsKeyPressed(Key::Down)) {
             if (volume > 0.0f) volume = volume - 0.01f;
-            SP_APP_INFO("Lautstärke: ", volume);
+            SP_INFO("Lautstärke: ", volume);
             sound.setVolume(volume);
         }
 
