@@ -1,5 +1,8 @@
 # SpriteSparkEngine
 
+![DALL·E-2024-09-03-02 06](https://github.com/user-attachments/assets/50e8a6d8-44d3-4d1f-974b-1446ce2cc876)
+This image was generated with [DALL-E](https://openai.com/index/dall-e-3/)
+
 **SpriteSparkEngine** is a 2D game engine developed in C++ with a focus on modern, efficient game development practices. This project was created as part of a Bachelor's thesis at the SRH Hochschule Heidelberg, showcasing a comprehensive implementation of a data-driven architecture and leveraging the Vulkan API for high-performance graphics rendering.
 
 ## Project Overview
