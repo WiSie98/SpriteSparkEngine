@@ -7,6 +7,15 @@ This image was generated with [DALL-E](https://openai.com/index/dall-e-3/)
 
 ## Project Overview
 
+```
+  _________            .__  __           _________                   __    ___________              .__               
+ /   _____/____________|__|/  |_  ____  /   _____/__________ _______|  | __\_   _____/ ____    ____ |__| ____   ____  
+ \_____  \\____ \_  __ \  \   __\/ __ \ \_____  \\____ \__  \\_  __ \  |/ / |    __)_ /    \  / ___\|  |/    \_/ __ \ 
+ /        \  |_> >  | \/  ||  | \  ___/ /        \  |_> > __ \|  | \/    <  |        \   |  \/ /_/  >  |   |  \  ___/ 
+/_______  /   __/|__|  |__||__|  \___  >_______  /   __(____  /__|  |__|_ \/_______  /___|  /\___  /|__|___|  /\___  >
+        \/|__|                       \/        \/|__|       \/           \/        \/     \//_____/         \/     \/ 
+```
+
 The primary objective of SpriteSparkEngine is to provide a flexible and powerful foundation for 2D game development, enabling developers to create high-quality games with efficient resource management and scalable architecture. The engine's data-driven approach separates data from logic, making the engine highly adaptable to different game genres and facilitating easier maintenance and expansion.
 
 ## Key Features
