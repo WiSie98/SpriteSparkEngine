@@ -42,7 +42,6 @@ namespace SpriteSpark {
         }
     }
 
-    // class member functions
     VulkanDevice::VulkanDevice(Window& window) : m_Window{ window } {
         createInstance();
         setupDebugMessenger();

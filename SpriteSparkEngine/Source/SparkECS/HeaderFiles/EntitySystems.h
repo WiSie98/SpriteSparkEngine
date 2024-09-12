@@ -26,19 +26,19 @@ namespace SpriteSpark {
                 glm::vec2 inputForce(0.0f, 0.0f);
 
                 if (Input::IsKeyPressed(Key::W) && player.isOnGround) {
-                    inputForce.y = -13000.0f;
+                    inputForce.y = -3500000.0f;
                     player.isOnGround = false;
                 }
                 if (Input::IsKeyPressed(Key::A)) {
-                    inputForce.x -= 400.0f;
-                    if (inputForce.x < -600.0f) {
-                        inputForce.x = -600.0f;
+                    inputForce.x -= 40000.0f;
+                    if (inputForce.x < -60000.0f) {
+                        inputForce.x = -60000.0f;
                     }
                 }
                 if (Input::IsKeyPressed(Key::D)) {
-                    inputForce.x += 400.0f;
-                    if (inputForce.x > 600.0f) {
-                        inputForce.x = 600.0f;
+                    inputForce.x += 40000.0f;
+                    if (inputForce.x > 60000.0f) {
+                        inputForce.x = 60000.0f;
                     }
                 }
 
@@ -49,7 +49,7 @@ namespace SpriteSpark {
 
                 glm::vec2 acceleration = inputForce / rigidBody.mass;
 
-                rigidBody.acceleration = acceleration;
+                rigidBody.acceleration = acceleration * dt;
 
                 camera.setPosition({ transform.position.x, transform.position.y, 0.0f });
                 camera.setZoom(150.0f);
@@ -88,7 +88,7 @@ namespace SpriteSpark {
     public:
 
         void update(EntityManager& entities, float dt) {
-            const int gridSize = 100;
+            const int gridSize = 16;
 
             std::unordered_map<int, std::vector<Entity>> grid;
 

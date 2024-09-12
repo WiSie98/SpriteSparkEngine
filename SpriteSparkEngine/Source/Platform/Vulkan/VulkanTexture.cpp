@@ -9,7 +9,6 @@
 namespace SpriteSpark {
 
 	VulkanTexture::VulkanTexture(VulkanDevice& device, const std::string& filepath) : m_Device(device) {
-        //int channels;
         int m_BytesPerPixel;
 
         auto data = stbi_load(filepath.c_str(), &m_Width, &m_Height, &m_BytesPerPixel, 4);
